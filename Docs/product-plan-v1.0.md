@@ -97,9 +97,14 @@
 - 교수 사진
 - 교수 성격
 
+성별 값:
+
+- `male`
+- `female`
+
 ### 6.2 성격 설정
 
-교수 캐릭터 생성은 교수 사진과 성격을 기준으로 진행한다.
+교수 캐릭터 생성은 교수 사진, 성별, 성격을 기준으로 진행한다.
 
 예시 성격 타입:
 
@@ -108,13 +113,21 @@
 - 집착형
 - 새침형
 
-### 6.3 사진 예외 처리
+### 6.3 캐릭터 에셋 생성
+
+- 사용자가 교수 사진을 입력하면, 해당 사진을 기준으로 `nanobanana`를 사용해 여러 표정과 포즈의 전신 2D 캐릭터 이미지 세트를 생성한다.
+- 생성된 캐릭터 에셋은 메인 화면, 이벤트 팝업, 대사 출력, 결과 화면 등 게임 내 교수 캐릭터 표현에 사용한다.
+- 에셋은 사전에 정의된 표정/포즈 슬롯에 맞춰 관리한다.
+
+### 6.4 사진 예외 처리
 
 - 교수 사진이 없을 경우 기본 이미지를 사용한다.
+- 교수 사진 기반 생성이 실패할 경우에도 게임 진행이 막히지 않도록 기본 캐릭터 에셋 세트를 사용한다.
 
-### 6.4 설계 원칙
+### 6.5 설계 원칙
 
 - MVP에서는 교안 분석, 자동 성격 추론 등은 제외한다.
+- MVP에서는 교수 사진 기반 캐릭터 에셋 생성만 포함하고, 텍스트만으로 신규 캐릭터를 임의 생성하는 기능은 제외한다.
 - 캐릭터 반응은 사전에 정의된 성격 템플릿을 기준으로 출력한다.
 
 ## 7. 공부 세션 시스템
@@ -352,10 +365,12 @@ penalty = max(현재 호감도 // 10, 1)
 - 성별
 - 성격
 - 사진 업로드
+- 캐릭터 에셋 생성 상태
 
 ### 14.3 메인 화면
 
 - 현재 교수 카드
+- 대표 캐릭터 에셋
 - 호감도 게이지
 - 공부 시작 버튼
 - 상태 표시
@@ -423,6 +438,7 @@ penalty = max(현재 호감도 // 10, 1)
 
 - 로그인
 - 교수 등록
+- 교수 사진 기반 캐릭터 에셋 생성
 - 교수별 호감도 관리
 - 공부 시작/종료
 - 모바일 웹 타이머
@@ -434,15 +450,15 @@ penalty = max(현재 호감도 // 10, 1)
 
 ### 17.2 제외
 
-- AI 자동 이미지 생성
 - 교안 분석 기반 자동 성격 추론
+- 텍스트만으로 신규 캐릭터를 임의 생성하는 기능
 - 버튜버 변환
 - 확장 미니게임
 - 커스터마이징 심화 기능
 
 ## 18. 데이터 구조 초안
 
-### 18.1 User
+### 18.1 사용자
 
 - `userId`
 - `name`
@@ -450,22 +466,32 @@ penalty = max(현재 호감도 // 10, 1)
 - `password`
 - `examEndDate`
 
-### 18.2 Professor
+### 18.2 교수
 
 - `professorId`
 - `subjectName`
 - `professorName`
 - `gender`
 - `personalityType`
-- `imageUrl`
+- `sourcePhotoUrl`
+- `characterAssetStatus`
+- `isDefaultCharacterAssets`
 
-### 18.3 Affection
+### 18.3 교수 캐릭터 에셋
+
+- `assetId`
+- `professorId`
+- `variantKey`
+- `imageUrl`
+- `isDefaultAsset`
+
+### 18.4 호감도
 
 - `userId`
 - `professorId`
 - `affectionScore`
 
-### 18.4 StudySession
+### 18.5 공부 세션
 
 - `sessionId`
 - `userId`
@@ -476,7 +502,7 @@ penalty = max(현재 호감도 // 10, 1)
 - `hiddenStartedAt`
 - `idlePenaltyApplied`
 
-### 18.5 Dialogue
+### 18.6 대사
 
 - `dialogueId`
 - `professorId` or `personalityType`
@@ -484,7 +510,7 @@ penalty = max(현재 호감도 // 10, 1)
 - `affectionRange`
 - `text`
 
-### 18.6 ScenarioEvent
+### 18.7 시나리오 이벤트
 
 - `eventId`
 - `professorId` or `personalityType`
