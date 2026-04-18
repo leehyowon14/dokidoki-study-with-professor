@@ -5,6 +5,8 @@ import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import com.animalleague.april.common.api.ErrorResponse.FieldViolation;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
@@ -74,8 +78,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         HttpMessageNotReadableException.class,
         MethodArgumentTypeMismatchException.class,
-        MissingServletRequestParameterException.class,
-        IllegalArgumentException.class
+        MissingServletRequestParameterException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequest(
         Exception exception,
@@ -85,7 +88,7 @@ public class GlobalExceptionHandler {
             ErrorResponse.of(
                 HttpStatus.BAD_REQUEST,
                 "BAD_REQUEST",
-                exception.getMessage(),
+                resolveBadRequestMessage(exception),
                 request.getRequestURI()
             )
         );
@@ -108,6 +111,14 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
+        log.error(
+            "처리되지 않은 예외 발생. method={}, uri={}, remoteAddr={}",
+            request.getMethod(),
+            request.getRequestURI(),
+            request.getRemoteAddr(),
+            exception
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
             ErrorResponse.of(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -133,5 +144,20 @@ public class GlobalExceptionHandler {
             ErrorResponse.of(status, code, message, path).withViolations(violations)
         );
     }
-}
 
+    private String resolveBadRequestMessage(Exception exception) {
+        if (exception instanceof HttpMessageNotReadableException) {
+            return "요청 본문을 읽을 수 없습니다.";
+        }
+
+        if (exception instanceof MethodArgumentTypeMismatchException) {
+            return "요청 파라미터 타입이 올바르지 않습니다.";
+        }
+
+        if (exception instanceof MissingServletRequestParameterException) {
+            return "필수 요청 파라미터가 누락되었습니다.";
+        }
+
+        return "잘못된 요청입니다.";
+    }
+}

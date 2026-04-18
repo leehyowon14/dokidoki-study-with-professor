@@ -3,6 +3,7 @@ package com.animalleague.april.common.api;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 public record ErrorResponse(
@@ -25,10 +26,12 @@ public record ErrorResponse(
         String message,
         String path
     ) {
+        String error = status instanceof HttpStatus httpStatus ? httpStatus.getReasonPhrase() : status.toString();
+
         return new ErrorResponse(
             OffsetDateTime.now(),
             status.value(),
-            status.toString(),
+            error,
             code,
             message,
             path,
@@ -43,4 +46,3 @@ public record ErrorResponse(
     public record FieldViolation(String field, String reason) {
     }
 }
-

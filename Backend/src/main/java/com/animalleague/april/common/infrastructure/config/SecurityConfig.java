@@ -1,6 +1,7 @@
 package com.animalleague.april.common.infrastructure.config;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -79,7 +80,7 @@ public class SecurityConfig {
     ) throws IOException {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         objectMapper.writeValue(response.getOutputStream(), ErrorResponse.of(status, code, message, path));
     }
 }
-
