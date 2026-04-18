@@ -296,8 +296,6 @@ components:
     ProfessorCreateRequest:
       type: object
       properties:
-        subjectName:
-          type: string
         professorName:
           type: string
         gender:
@@ -309,7 +307,7 @@ components:
           type: string
           format: uri
           nullable: true
-      required: [subjectName, professorName, gender, personalityType]
+      required: [professorName, gender, personalityType]
     ProfessorCreateResponse:
       type: object
       properties:
@@ -322,8 +320,6 @@ components:
         id:
           type: string
           format: uuid
-        subjectName:
-          type: string
         professorName:
           type: string
         gender:
@@ -346,7 +342,6 @@ components:
           type: boolean
       required:
         - id
-        - subjectName
         - professorName
         - gender
         - personalityType
@@ -453,25 +448,28 @@ components:
           type: integer
         effectiveStudySeconds:
           type: integer
-        affectionGain:
+        globalAffectionGain:
+          type: integer
+        updatedProfessorCount:
           type: integer
         earlyTerminationPenalty:
           type: integer
         idlePenaltyCount:
           type: integer
-        affectionDelta:
+        currentProfessorAffectionDelta:
           type: integer
-        nextAffectionScore:
+        currentProfessorNextAffectionScore:
           type: integer
       required:
         - totalSeconds
         - hiddenSeconds
         - effectiveStudySeconds
-        - affectionGain
+        - globalAffectionGain
+        - updatedProfessorCount
         - earlyTerminationPenalty
         - idlePenaltyCount
-        - affectionDelta
-        - nextAffectionScore
+        - currentProfessorAffectionDelta
+        - currentProfessorNextAffectionScore
     DialoguePayload:
       type: object
       properties:

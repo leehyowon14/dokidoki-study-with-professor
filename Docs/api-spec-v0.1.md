@@ -67,7 +67,6 @@ API 명세 v0.1
 
 요청 필드:
 
-- `subjectName`
 - `professorName`
 - `gender`: `male` 또는 `female`
 - `personalityType`
@@ -87,7 +86,6 @@ API 명세 v0.1
 응답 필드:
 
 - `professor.id`
-- `professor.subjectName`
 - `professor.professorName`
 - `professor.gender`
 - `professor.personalityType`
@@ -101,7 +99,6 @@ API 명세 v0.1
 응답 필드:
 
 - `professors[].id`
-- `professors[].subjectName`
 - `professors[].professorName`
 - `professors[].gender`
 - `professors[].personalityType`
@@ -115,7 +112,6 @@ API 명세 v0.1
 응답 필드:
 
 - `professor.id`
-- `professor.subjectName`
 - `professor.professorName`
 - `professor.gender`
 - `professor.personalityType`
@@ -152,11 +148,12 @@ API 명세 v0.1
 - `sessionSummary.totalSeconds`
 - `sessionSummary.hiddenSeconds`
 - `sessionSummary.effectiveStudySeconds`
-- `sessionSummary.affectionGain`
+- `sessionSummary.globalAffectionGain`
+- `sessionSummary.updatedProfessorCount`
 - `sessionSummary.earlyTerminationPenalty`
 - `sessionSummary.idlePenaltyCount`
-- `sessionSummary.affectionDelta`
-- `sessionSummary.nextAffectionScore`
+- `sessionSummary.currentProfessorAffectionDelta`
+- `sessionSummary.currentProfessorNextAffectionScore`
 - `dialogue`
 - `event`
 

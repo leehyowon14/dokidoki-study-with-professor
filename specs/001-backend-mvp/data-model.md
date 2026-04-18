@@ -3,7 +3,7 @@
 ## 1. 모델링 원칙
 
 - 모든 핵심 비즈니스 규칙은 서버 모델 기준으로 계산한다.
-- 사용자와 교수 간 상태는 교수별로 완전히 독립적이다.
+- 사용자와 교수 간 호감도 상태는 교수별로 유지하되, 공부 보상은 모든 교수에 동일하게 적용한다.
 - 공부 세션의 원본 이벤트와 정산 결과를 모두 저장해 사후 검증이 가능해야 한다.
 - 프론트엔드는 별도 진행이므로, 응답 형상보다 먼저 도메인 무결성과 상태 전이를 고정한다.
 
@@ -33,7 +33,6 @@
 | --- | --- | --- |
 | id | UUID | 시스템 생성 |
 | userId | UUID | 사용자 FK |
-| subjectName | string | 필수 |
 | professorName | string | 필수 |
 | gender | enum | `male`, `female` |
 | personalityType | enum | `cold`, `kind`, `obsessive`, `tsundere` |
@@ -106,8 +105,8 @@
 | effectiveStudySeconds | integer nullable | `totalSeconds - hiddenSeconds` |
 | idlePenaltyCount | integer | 기본 0 |
 | earlyTerminationPenalty | integer | 기본 0 |
-| affectionGain | integer | 기본 0 |
-| affectionDelta | integer | 최종 정산 값 |
+| globalAffectionGain | integer | 기본 0 |
+| currentProfessorAffectionDelta | integer | 현재 교수 기준 최종 정산 값 |
 | eventTriggered | boolean | 기본 false |
 | createdAt | datetime | 생성 시각 |
 | updatedAt | datetime | 수정 시각 |
@@ -194,21 +193,23 @@
 ### 공부 보상
 
 ```text
-affectionGain = min(floor(effectiveStudySeconds / 600) * 2, 10)
+globalAffectionGain = min(floor(effectiveStudySeconds / 600) * 2, 10)
 ```
+
+- 계산된 `globalAffectionGain`은 등록된 모든 교수의 호감도에 동일하게 반영한다.
 
 ### 중도 포기 패널티
 
 조건:
 
 ```text
-effectiveStudySeconds < 600
+effectiveStudySeconds < 1200
 ```
 
 계산식:
 
 ```text
-earlyTerminationPenalty = max(currentAffectionScore // 10, 1)
+earlyTerminationPenalty = 2
 ```
 
 ### 방치 패널티
@@ -222,14 +223,16 @@ hiddenDurationSeconds >= 120
 계산식:
 
 ```text
-idlePenalty = idlePenaltyCount * 2
+idlePenaltyPerOccurrence = max(currentAffectionScore // 10, 1)
+idlePenalty = idlePenaltyCount * idlePenaltyPerOccurrence
 ```
 
 ### 최종 호감도 정산
 
 ```text
-affectionDelta = affectionGain - earlyTerminationPenalty - idlePenalty
-nextAffectionScore = clamp(currentAffectionScore + affectionDelta, 0, 100)
+currentProfessorAffectionDelta = globalAffectionGain - earlyTerminationPenalty - idlePenalty
+currentProfessorNextAffectionScore = clamp(currentProfessorAffectionScore + currentProfessorAffectionDelta, 0, 100)
+otherProfessorNextAffectionScore = clamp(otherProfessorAffectionScore + globalAffectionGain, 0, 100)
 ```
 
 ## 4. 상태 전이
