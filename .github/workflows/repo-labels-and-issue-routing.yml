@@ -1,0 +1,96 @@
+name: Repo Labels And Issue Routing
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/**"
+  issues:
+    types:
+      - opened
+      - edited
+      - reopened
+
+permissions:
+  issues: write
+
+jobs:
+  sync-labels-and-route:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure repository labels and route issue workstream
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const requiredLabels = [
+              {
+                name: "Front-end",
+                color: "1D76DB",
+                description: "Frontend workstream"
+              },
+              {
+                name: "Back-end",
+                color: "0E8A16",
+                description: "Backend workstream"
+              },
+              {
+                name: "Feature",
+                color: "A2EEEF",
+                description: "Feature issue"
+              },
+              {
+                name: "Fix",
+                color: "D73A4A",
+                description: "Bug fix issue"
+              },
+              {
+                name: "Task",
+                color: "FBCA04",
+                description: "Engineering or operational task"
+              }
+            ];
+
+            for (const label of requiredLabels) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              }
+            }
+
+            if (context.eventName !== "issues") {
+              core.info("Issue routing skipped because this run was not triggered by an issue event.");
+              return;
+            }
+
+            const body = context.payload.issue.body || "";
+            const workstreamMatch = body.match(/### Workstream\s+([\s\S]*?)(?:\n###|\n##|$)/);
+            const workstreamBlock = workstreamMatch ? workstreamMatch[1] : "";
+
+            const labelsToApply = [];
+            if (/Front-end/i.test(workstreamBlock)) labelsToApply.push("Front-end");
+            if (/Back-end/i.test(workstreamBlock)) labelsToApply.push("Back-end");
+
+            if (labelsToApply.length === 0) {
+              core.warning("No workstream label detected in the issue body.");
+              return;
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: labelsToApply
+            });
+

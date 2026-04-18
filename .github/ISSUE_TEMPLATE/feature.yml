@@ -1,0 +1,67 @@
+name: Feature
+description: 신규 기능 작업용 이슈 템플릿
+title: "[Feature] "
+labels:
+  - Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        생성된 이슈 번호의 숫자 부분이 branch naming의 `issueNum`입니다.
+        예: 이슈가 `#123`이면 branch는 `feat/front-end/123-login` 형식을 사용합니다.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: 기능을 한 줄로 설명합니다.
+      placeholder: 공부 세션 종료 요약 모달 추가
+    validations:
+      required: true
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Workstream
+      description: 이 이슈의 주 작업 영역을 선택합니다.
+      options:
+        - Front-end
+        - Back-end
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: Background
+      description: 왜 필요한지, 현재 어떤 맥락인지 적습니다.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: 이번 이슈에서 다루는 범위를 적습니다.
+      placeholder: |
+        - 공부 종료 후 요약 정보 표시
+        - 이벤트 발생 시 이벤트 모달 연결
+        - 방치 패널티 요약 반영
+    validations:
+      required: true
+  - type: checkboxes
+    id: docs_impact
+    attributes:
+      label: Docs Impact
+      options:
+        - label: Docs/api-spec-vX.Y.md 업데이트 필요
+        - label: Docs/FE-comment-vX.Y.md 업데이트 필요
+        - label: Docs/BE-comment-vX.Y.md 업데이트 필요
+        - label: 추가 문서 영향 없음
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: 체크 가능한 완료 조건을 적습니다.
+      placeholder: |
+        - [ ] 공부 종료 시 요약 모달이 열린다
+        - [ ] API 응답의 affectionDelta가 화면에 표시된다
+    validations:
+      required: true
+
