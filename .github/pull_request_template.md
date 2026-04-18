@@ -1,42 +1,41 @@
-## Summary
+## 요약
 
 -
 
-## Linked Issues
+## 연결된 이슈
 
 - Closes #
 
-## Workstream
+## 작업 영역
 
 - [ ] Front-end
 - [ ] Back-end
 
-## Branch / Deployment Target
+## 브랜치 / 배포 대상
 
-- Source branch:
-- Target branch:
-- `issueNum` means the numeric part of the GitHub issue number, for example `123` from `#123`
+- 소스 브랜치:
+- 대상 브랜치:
+- `issueNum`은 GitHub 이슈 번호 `#123`의 숫자 부분인 `123`을 의미한다.
 
-## What Changed
+## 변경 내용
 
 -
 
-## Tests
+## 테스트
 
-- [ ] Failing tests were added first before implementation
-- [ ] Front-end tests added or updated
-- [ ] Back-end tests added or updated
-- [ ] CI passed
+- [ ] 구현 전에 실패하는 테스트를 먼저 추가했다.
+- [ ] Front-end 테스트를 추가하거나 갱신했다.
+- [ ] Back-end 테스트를 추가하거나 갱신했다.
+- [ ] CI가 통과했다.
 
-## Docs
+## 문서
 
-- [ ] Versioned docs in `Docs/` updated
-- [ ] API contract updated if applicable
-- [ ] `FE-comment` / `BE-comment` updated if cross-team blocker existed
-- [ ] No documentation impact
+- [ ] `Docs/`의 버전 문서를 갱신했다.
+- [ ] 필요 시 API 계약을 갱신했다.
+- [ ] 교차 팀 차단 이슈가 있었다면 `FE-comment` / `BE-comment` 문서를 갱신했다.
+- [ ] 문서 영향이 없다.
 
-## Review Notes
+## 리뷰 메모
 
-- Areas reviewers should focus on:
-- Known follow-up work:
-
+- 중점적으로 봐야 할 영역:
+- 알려진 후속 작업:

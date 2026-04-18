@@ -1,4 +1,4 @@
-name: Task
+name: 작업
 description: 기술 작업 및 운영성 작업용 이슈 템플릿
 title: "[Task] "
 labels:
@@ -7,12 +7,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        생성된 이슈 번호의 숫자 부분이 branch naming의 `issueNum`입니다.
-        예: 이슈가 `#123`이면 branch는 `feat/back-end/123-add-ci-check` 형식을 사용합니다.
+        생성된 이슈 번호의 숫자 부분이 브랜치 이름의 `issueNum`입니다.
+        예: 이슈가 `#123`이면 브랜치는 `feat/back-end/123-add-ci-check` 형식을 사용합니다.
   - type: textarea
     id: summary
     attributes:
-      label: Summary
+      label: 요약
       description: 작업 목적을 한 줄로 적습니다.
       placeholder: PR 검증용 백엔드 테스트 workflow 추가
     validations:
@@ -20,7 +20,7 @@ body:
   - type: dropdown
     id: workstream
     attributes:
-      label: Workstream
+      label: 작업 영역
       description: 이 작업의 주 작업 영역을 선택합니다.
       options:
         - Front-end
@@ -30,19 +30,19 @@ body:
   - type: dropdown
     id: task_type
     attributes:
-      label: Task Type
+      label: 작업 유형
       options:
-        - Refactor
+        - 리팩터링
         - CI/CD
-        - Documentation
-        - Build / Tooling
-        - Test Infrastructure
+        - 문서화
+        - 빌드 / 도구
+        - 테스트 인프라
     validations:
       required: true
   - type: textarea
     id: deliverables
     attributes:
-      label: Deliverables
+      label: 산출물
       description: 구체적인 산출물을 적습니다.
       placeholder: |
         - GitHub Actions workflow 추가
@@ -52,10 +52,9 @@ body:
   - type: checkboxes
     id: docs_impact
     attributes:
-      label: Docs Impact
+      label: 문서 영향
       options:
         - label: Docs/api-spec-vX.Y.md 업데이트 필요
         - label: Docs/FE-comment-vX.Y.md 업데이트 필요
         - label: Docs/BE-comment-vX.Y.md 업데이트 필요
         - label: 추가 문서 영향 없음
-

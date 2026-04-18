@@ -1,63 +1,64 @@
-# Git Branching Workflow Extension
+# Git 브랜치 워크플로 확장
 
-Git repository initialization, feature branch creation, numbering (sequential/timestamp), validation, remote detection, and auto-commit for Spec Kit.
+Spec Kit을 위한 Git 저장소 초기화, 기능 브랜치 생성, 번호 부여(순차/타임스탬프),
+브랜치 검증, 원격 저장소 감지, 자동 커밋 기능을 제공한다.
 
-## Overview
+## 개요
 
-This extension provides Git operations as an optional, self-contained module. It manages:
+이 확장은 Git 작업을 선택적으로 사용할 수 있는 독립 모듈로 제공한다. 관리 대상은 아래와 같다.
 
-- **Repository initialization** with configurable commit messages
-- **Feature branch creation** with sequential (`001-feature-name`) or timestamp (`20260319-143022-feature-name`) numbering
-- **Branch validation** to ensure branches follow naming conventions
-- **Git remote detection** for GitHub integration (e.g., issue creation)
-- **Auto-commit** after core commands (configurable per-command with custom messages)
+- 설정 가능한 커밋 메시지를 사용하는 **저장소 초기화**
+- 순차 번호(`001-feature-name`) 또는 타임스탬프(`20260319-143022-feature-name`) 기반의 **기능 브랜치 생성**
+- 브랜치 네이밍 규칙 준수를 확인하는 **브랜치 검증**
+- GitHub 연동용 **원격 저장소 감지** (예: 이슈 생성)
+- 핵심 명령 뒤에 실행되는 **자동 커밋** (명령별 켜기/끄기 및 메시지 설정 가능)
 
-## Commands
+## 명령 목록
 
-| Command | Description |
+| 명령 | 설명 |
 |---------|-------------|
-| `speckit.git.initialize` | Initialize a Git repository with a configurable commit message |
-| `speckit.git.feature` | Create a feature branch with sequential or timestamp numbering |
-| `speckit.git.validate` | Validate current branch follows feature branch naming conventions |
-| `speckit.git.remote` | Detect Git remote URL for GitHub integration |
-| `speckit.git.commit` | Auto-commit changes (configurable per-command enable/disable and messages) |
+| `speckit.git.initialize` | 설정 가능한 초기 커밋 메시지로 Git 저장소를 초기화한다 |
+| `speckit.git.feature` | 순차 번호 또는 타임스탬프를 붙인 기능 브랜치를 만든다 |
+| `speckit.git.validate` | 현재 브랜치가 기능 브랜치 규칙을 따르는지 검증한다 |
+| `speckit.git.remote` | GitHub 연동용 원격 저장소 URL을 감지한다 |
+| `speckit.git.commit` | 변경 사항을 자동 커밋한다 (명령별 켜기/끄기 및 메시지 설정 가능) |
 
-## Hooks
+## 훅
 
-| Event | Command | Optional | Description |
+| 이벤트 | 명령 | 선택 여부 | 설명 |
 |-------|---------|----------|-------------|
-| `before_constitution` | `speckit.git.initialize` | No | Init git repo before constitution |
-| `before_specify` | `speckit.git.feature` | No | Create feature branch before specification |
-| `before_clarify` | `speckit.git.commit` | Yes | Commit outstanding changes before clarification |
-| `before_plan` | `speckit.git.commit` | Yes | Commit outstanding changes before planning |
-| `before_tasks` | `speckit.git.commit` | Yes | Commit outstanding changes before task generation |
-| `before_implement` | `speckit.git.commit` | Yes | Commit outstanding changes before implementation |
-| `before_checklist` | `speckit.git.commit` | Yes | Commit outstanding changes before checklist |
-| `before_analyze` | `speckit.git.commit` | Yes | Commit outstanding changes before analysis |
-| `before_taskstoissues` | `speckit.git.commit` | Yes | Commit outstanding changes before issue sync |
-| `after_constitution` | `speckit.git.commit` | Yes | Auto-commit after constitution update |
-| `after_specify` | `speckit.git.commit` | Yes | Auto-commit after specification |
-| `after_clarify` | `speckit.git.commit` | Yes | Auto-commit after clarification |
-| `after_plan` | `speckit.git.commit` | Yes | Auto-commit after planning |
-| `after_tasks` | `speckit.git.commit` | Yes | Auto-commit after task generation |
-| `after_implement` | `speckit.git.commit` | Yes | Auto-commit after implementation |
-| `after_checklist` | `speckit.git.commit` | Yes | Auto-commit after checklist |
-| `after_analyze` | `speckit.git.commit` | Yes | Auto-commit after analysis |
-| `after_taskstoissues` | `speckit.git.commit` | Yes | Auto-commit after issue sync |
+| `before_constitution` | `speckit.git.initialize` | 필수 | 헌장 설정 전에 Git 저장소를 초기화한다 |
+| `before_specify` | `speckit.git.feature` | 필수 | 명세 생성 전에 기능 브랜치를 만든다 |
+| `before_clarify` | `speckit.git.commit` | 선택 | 명세 보완 전에 미커밋 변경 사항을 커밋한다 |
+| `before_plan` | `speckit.git.commit` | 선택 | 계획 수립 전에 미커밋 변경 사항을 커밋한다 |
+| `before_tasks` | `speckit.git.commit` | 선택 | 작업 목록 생성 전에 미커밋 변경 사항을 커밋한다 |
+| `before_implement` | `speckit.git.commit` | 선택 | 구현 전에 미커밋 변경 사항을 커밋한다 |
+| `before_checklist` | `speckit.git.commit` | 선택 | 체크리스트 생성 전에 미커밋 변경 사항을 커밋한다 |
+| `before_analyze` | `speckit.git.commit` | 선택 | 분석 전에 미커밋 변경 사항을 커밋한다 |
+| `before_taskstoissues` | `speckit.git.commit` | 선택 | 이슈 동기화 전에 미커밋 변경 사항을 커밋한다 |
+| `after_constitution` | `speckit.git.commit` | 선택 | 헌장 갱신 후 자동 커밋한다 |
+| `after_specify` | `speckit.git.commit` | 선택 | 명세 생성 후 자동 커밋한다 |
+| `after_clarify` | `speckit.git.commit` | 선택 | 명세 보완 후 자동 커밋한다 |
+| `after_plan` | `speckit.git.commit` | 선택 | 계획 수립 후 자동 커밋한다 |
+| `after_tasks` | `speckit.git.commit` | 선택 | 작업 목록 생성 후 자동 커밋한다 |
+| `after_implement` | `speckit.git.commit` | 선택 | 구현 후 자동 커밋한다 |
+| `after_checklist` | `speckit.git.commit` | 선택 | 체크리스트 생성 후 자동 커밋한다 |
+| `after_analyze` | `speckit.git.commit` | 선택 | 분석 후 자동 커밋한다 |
+| `after_taskstoissues` | `speckit.git.commit` | 선택 | 이슈 동기화 후 자동 커밋한다 |
 
-## Configuration
+## 설정
 
-Configuration is stored in `.specify/extensions/git/git-config.yml`:
+설정은 `.specify/extensions/git/git-config.yml`에 저장한다.
 
 ```yaml
-# Branch numbering strategy: "sequential" or "timestamp"
+# 브랜치 번호 전략: "sequential" 또는 "timestamp"
 branch_numbering: sequential
 
-# Custom commit message for git init
+# git init 시 사용할 커밋 메시지
 init_commit_message: "[Spec Kit] Initial commit"
 
-# Auto-commit per command (all disabled by default)
-# Example: enable auto-commit after specify
+# 명령별 자동 커밋 설정 (기본값은 모두 비활성화)
+# 예: specify 이후 자동 커밋 활성화
 auto_commit:
   default: false
   after_specify:
@@ -65,36 +66,37 @@ auto_commit:
     message: "[Spec Kit] Add specification"
 ```
 
-## Installation
+## 설치
 
 ```bash
-# Install the bundled git extension (no network required)
+# 번들된 git 확장을 설치한다. 네트워크는 필요 없다.
 specify extension add git
 ```
 
-## Disabling
+## 비활성화
 
 ```bash
-# Disable the git extension (spec creation continues without branching)
+# git 확장을 비활성화한다. 스펙 생성은 브랜치 생성 없이 계속된다.
 specify extension disable git
 
-# Re-enable it
+# 다시 활성화한다.
 specify extension enable git
 ```
 
-## Graceful Degradation
+## 점진적 저하 처리
 
-When Git is not installed or the directory is not a Git repository:
-- Spec directories are still created under `specs/`
-- Branch creation is skipped with a warning
-- Branch validation is skipped with a warning
-- Remote detection returns empty results
+Git이 설치되지 않았거나 현재 디렉터리가 Git 저장소가 아니면:
 
-## Scripts
+- 스펙 디렉터리는 계속 `specs/` 아래에 생성된다.
+- 브랜치 생성은 경고와 함께 건너뛴다.
+- 브랜치 검증은 경고와 함께 건너뛴다.
+- 원격 저장소 감지는 빈 결과를 반환한다.
 
-The extension bundles cross-platform scripts:
+## 스크립트
 
-- `scripts/bash/create-new-feature.sh` — Bash implementation
-- `scripts/bash/git-common.sh` — Shared Git utilities (Bash)
-- `scripts/powershell/create-new-feature.ps1` — PowerShell implementation
-- `scripts/powershell/git-common.ps1` — Shared Git utilities (PowerShell)
+이 확장은 아래와 같은 크로스플랫폼 스크립트를 포함한다.
+
+- `scripts/bash/create-new-feature.sh` — Bash 구현
+- `scripts/bash/git-common.sh` — 공통 Git 유틸리티 (Bash)
+- `scripts/powershell/create-new-feature.ps1` — PowerShell 구현
+- `scripts/powershell/git-common.ps1` — 공통 Git 유틸리티 (PowerShell)

@@ -1,4 +1,4 @@
-name: Repo Labels And Issue Routing
+name: 저장소 라벨 및 이슈 작업 영역 분류
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
   sync-labels-and-route:
     runs-on: ubuntu-latest
     steps:
-      - name: Ensure repository labels and route issue workstream
+      - name: 저장소 라벨을 맞추고 이슈 작업 영역을 분류
         uses: actions/github-script@v7
         with:
           script: |
@@ -26,27 +26,27 @@ jobs:
               {
                 name: "Front-end",
                 color: "1D76DB",
-                description: "Frontend workstream"
+                description: "프론트엔드 작업 영역"
               },
               {
                 name: "Back-end",
                 color: "0E8A16",
-                description: "Backend workstream"
+                description: "백엔드 작업 영역"
               },
               {
                 name: "Feature",
                 color: "A2EEEF",
-                description: "Feature issue"
+                description: "기능 작업 이슈"
               },
               {
                 name: "Fix",
                 color: "D73A4A",
-                description: "Bug fix issue"
+                description: "버그 수정 이슈"
               },
               {
                 name: "Task",
                 color: "FBCA04",
-                description: "Engineering or operational task"
+                description: "기술 또는 운영 작업 이슈"
               }
             ];
 
@@ -70,12 +70,12 @@ jobs:
             }
 
             if (context.eventName !== "issues") {
-              core.info("Issue routing skipped because this run was not triggered by an issue event.");
+              core.info("이 실행은 이슈 이벤트로 시작된 것이 아니어서 작업 영역 분류를 건너뜁니다.");
               return;
             }
 
             const body = context.payload.issue.body || "";
-            const workstreamMatch = body.match(/### Workstream\s+([\s\S]*?)(?:\n###|\n##|$)/);
+            const workstreamMatch = body.match(/### (?:작업 영역|Workstream)\s+([\s\S]*?)(?:\n###|\n##|$)/);
             const workstreamBlock = workstreamMatch ? workstreamMatch[1] : "";
 
             const labelsToApply = [];
@@ -83,7 +83,7 @@ jobs:
             if (/Back-end/i.test(workstreamBlock)) labelsToApply.push("Back-end");
 
             if (labelsToApply.length === 0) {
-              core.warning("No workstream label detected in the issue body.");
+              core.warning("이슈 본문에서 작업 영역 라벨을 찾지 못했습니다.");
               return;
             }
 
@@ -93,4 +93,3 @@ jobs:
               issue_number: context.issue.number,
               labels: labelsToApply
             });
-

@@ -1,121 +1,118 @@
-# Feature Specification: [FEATURE NAME]
+# 기능 명세: [FEATURE NAME]
 
-**Feature ID**: `[FEATURE_ID]`  
-**Working Branch**: `[WORKING_BRANCH]`  
-**Created**: [DATE]  
-**Status**: Draft  
-**Input**: User description: "$ARGUMENTS"
+**기능 ID**: `[FEATURE_ID]`  
+**작업 브랜치**: `[WORKING_BRANCH]`  
+**작성일**: [DATE]  
+**상태**: 초안  
+**입력**: 사용자 설명: "$ARGUMENTS"
 
-**Note**: `issueNum` in branch names means the numeric part of a GitHub issue,
-for example `123` from `#123`.
+**참고**: 브랜치 이름의 `issueNum`은 GitHub 이슈 번호 `#123`에서 숫자 부분인 `123`을 뜻한다.
 
-## User Scenarios & Testing *(mandatory)*
+## 사용자 시나리오 및 테스트 *(필수)*
 
-User stories MUST be independently testable, independently reviewable, and explicit about
-frontend/backend boundaries.
+사용자 스토리는 각각 독립적으로 테스트 가능하고, 독립적으로 리뷰 가능해야 하며,
+프론트엔드와 백엔드의 경계를 분명히 드러내야 한다.
 
-### User Story 1 - [Brief Title] (Priority: P1)
+### 사용자 스토리 1 - [짧은 제목] (우선순위: P1)
 
-[Describe this user journey in plain language]
+[이 사용자 여정을 쉬운 문장으로 설명]
 
-**Why this priority**: [Explain the user/business value]
+**우선순위 근거**: [사용자/비즈니스 관점의 가치 설명]
 
-**Independent Test**: [Describe the end-to-end verification path]
+**독립 검증 방법**: [끝에서 끝까지 검증하는 경로 설명]
 
-**Acceptance Scenarios**:
+**수용 시나리오**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 2 - [Brief Title] (Priority: P2)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the user/business value]
-
-**Independent Test**: [Describe the end-to-end verification path]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **조건** [초기 상태], **행동** [사용자 행동], **결과** [기대 결과]
+2. **조건** [초기 상태], **행동** [사용자 행동], **결과** [기대 결과]
 
 ---
 
-### User Story 3 - [Brief Title] (Priority: P3)
+### 사용자 스토리 2 - [짧은 제목] (우선순위: P2)
 
-[Describe this user journey in plain language]
+[이 사용자 여정을 쉬운 문장으로 설명]
 
-**Why this priority**: [Explain the user/business value]
+**우선순위 근거**: [사용자/비즈니스 관점의 가치 설명]
 
-**Independent Test**: [Describe the end-to-end verification path]
+**독립 검증 방법**: [끝에서 끝까지 검증하는 경로 설명]
 
-**Acceptance Scenarios**:
+**수용 시나리오**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **조건** [초기 상태], **행동** [사용자 행동], **결과** [기대 결과]
 
-## Edge Cases
+---
 
-- What happens when [frontend validation failure or empty state]?
-- What happens when [backend contract mismatch, timeout, or concurrent update]?
-- What happens when FE and BE are developed in parallel and one side is ahead of the agreed contract?
+### 사용자 스토리 3 - [짧은 제목] (우선순위: P3)
 
-## Frontend / Backend Boundary *(mandatory)*
+[이 사용자 여정을 쉬운 문장으로 설명]
 
-### Frontend Responsibilities
+**우선순위 근거**: [사용자/비즈니스 관점의 가치 설명]
 
-- [UI scope, routes, state, validation, rendering ownership]
+**독립 검증 방법**: [끝에서 끝까지 검증하는 경로 설명]
 
-### Backend Responsibilities
+**수용 시나리오**:
 
-- [domain rules, persistence, API, auth, async processing ownership]
+1. **조건** [초기 상태], **행동** [사용자 행동], **결과** [기대 결과]
 
-### Shared Contract
+## 예외 및 경계 상황
 
-- [API endpoints / payloads / error codes / docs to update in `Docs/`]
+- [프론트엔드 검증 실패나 빈 상태]가 발생하면 어떻게 되는가?
+- [백엔드 계약 불일치, 타임아웃, 동시성 갱신]이 발생하면 어떻게 되는가?
+- FE와 BE가 병렬로 개발될 때 한쪽이 합의된 계약보다 앞서가면 어떻게 되는가?
 
-### Parallel Work Plan
+## 프론트엔드 / 백엔드 경계 *(필수)*
 
-- [How FE and BE can work independently once the contract is frozen]
+### 프론트엔드 책임
 
-## Requirements *(mandatory)*
+- [UI 범위, 라우트, 상태, 검증, 렌더링 책임]
 
-### Functional Requirements
+### 백엔드 책임
 
-- **FR-001**: System MUST [specific capability]
-- **FR-002**: System MUST [specific capability]
-- **FR-003**: Frontend MUST [specific UX/client behavior]
-- **FR-004**: Backend MUST [specific domain/API behavior]
-- **FR-005**: System MUST update or create versioned documents in `Docs/` when the
-  feature changes contracts, behavior, or cross-team assumptions.
+- [도메인 규칙, 영속성, API, 인증, 비동기 처리 책임]
 
-### Key Entities *(include if feature involves data)*
+### 공유 계약
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+- [`Docs/`에 갱신할 API 엔드포인트, 페이로드, 오류 코드, 문서]
 
-## Documentation & Communication Impact *(mandatory)*
+### 병렬 작업 계획
 
-- **Docs to Create/Update**: [e.g., `Docs/api-spec-v0.2.md`, `Docs/FE-comment-v1.0.md`]
-- **API / Contract Changes**: [Describe payload or contract changes]
-- **Frontend Open Questions**: [List unresolved FE -> BE questions or `None`]
-- **Backend Open Questions**: [List unresolved BE -> FE questions or `None`]
-- **Versioning Plan**: [How document versions will be incremented]
+- [계약이 고정된 뒤 FE와 BE가 독립적으로 일할 수 있는 방식]
 
-## Success Criteria *(mandatory)*
+## 요구사항 *(필수)*
 
-### Measurable Outcomes
+### 기능 요구사항
 
-- **SC-001**: [Measurable user or business metric]
-- **SC-002**: [Measurable performance or reliability metric]
-- **SC-003**: [Measurable delivery or usability metric]
-- **SC-004**: [Measurable collaboration metric, e.g., FE and BE can integrate without
-  undocumented contract changes]
+- **FR-001**: 시스템은 [구체적 기능]을 제공해야 한다.
+- **FR-002**: 시스템은 [구체적 기능]을 제공해야 한다.
+- **FR-003**: 프론트엔드는 [구체적 UX/클라이언트 동작]을 수행해야 한다.
+- **FR-004**: 백엔드는 [구체적 도메인/API 동작]을 수행해야 한다.
+- **FR-005**: 기능이 계약, 동작, 협업 가정을 바꾸면 시스템은 `Docs/`의 버전 문서를 생성하거나 갱신해야 한다.
 
-## Assumptions
+### 핵심 엔티티 *(데이터가 포함되는 기능이면 작성)*
 
-- [Assumption about target users]
-- [Assumption about scope boundaries]
-- [Assumption about environment or deployment]
-- [Assumption about contract stability or existing system dependencies]
+- **[엔티티 1]**: [무엇을 나타내는지, 구현 세부 없는 핵심 속성]
+- **[엔티티 2]**: [무엇을 나타내는지, 다른 엔티티와의 관계]
+
+## 문서 및 커뮤니케이션 영향 *(필수)*
+
+- **생성/갱신 문서**: [예: `Docs/api-spec-v0.2.md`, `Docs/FE-comment-v1.0.md`]
+- **API / 계약 변경점**: [페이로드 또는 계약 변경 설명]
+- **프론트엔드 미해결 질문**: [미해결 FE -> BE 질문 목록 또는 `없음`]
+- **백엔드 미해결 질문**: [미해결 BE -> FE 질문 목록 또는 `없음`]
+- **버전 관리 계획**: [문서 버전을 어떻게 올릴지]
+
+## 성공 기준 *(필수)*
+
+### 측정 가능한 결과
+
+- **SC-001**: [측정 가능한 사용자 또는 비즈니스 지표]
+- **SC-002**: [측정 가능한 성능 또는 신뢰성 지표]
+- **SC-003**: [측정 가능한 전달 또는 사용성 지표]
+- **SC-004**: [예: 문서화되지 않은 계약 변경 없이 FE와 BE가 통합 가능하다는 협업 지표]
+
+## 가정
+
+- [대상 사용자에 대한 가정]
+- [범위 경계에 대한 가정]
+- [환경 또는 배포에 대한 가정]
+- [계약 안정성 또는 기존 시스템 의존성에 대한 가정]

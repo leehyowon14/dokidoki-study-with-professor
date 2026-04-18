@@ -1,45 +1,48 @@
 ---
-description: "Detect Git remote URL for GitHub integration"
+description: "GitHub 연동을 위한 원격 저장소 URL을 감지한다"
 ---
 
-# Detect Git Remote URL
+# Git 원격 저장소 감지
 
-Detect the Git remote URL for integration with GitHub services (e.g., issue creation).
+GitHub 서비스 연동(예: 이슈 생성)에 필요한 Git 원격 저장소 URL을 감지한다.
 
-## Prerequisites
+## 선행 조건
 
-- Check if Git is available by running `git rev-parse --is-inside-work-tree 2>/dev/null`
-- If Git is not available, output a warning and return empty:
-  ```
-  [specify] Warning: Git repository not detected; cannot determine remote URL
-  ```
+- `git rev-parse --is-inside-work-tree 2>/dev/null`로 Git 사용 가능 여부를 확인한다.
+- Git을 사용할 수 없으면 아래 경고를 출력하고 빈 결과를 반환한다.
 
-## Execution
+```text
+[specify] Warning: Git repository not detected; cannot determine remote URL
+```
 
-Run the following command to get the remote URL:
+## 실행
+
+원격 URL을 확인하려면 아래 명령을 실행한다.
 
 ```bash
 git config --get remote.origin.url
 ```
 
-## Output
+## 출력
 
-Parse the remote URL and determine:
+원격 URL을 파싱해 아래 정보를 판단한다.
 
-1. **Repository owner**: Extract from the URL (e.g., `github` from `https://github.com/github/spec-kit.git`)
-2. **Repository name**: Extract from the URL (e.g., `spec-kit` from `https://github.com/github/spec-kit.git`)
-3. **Is GitHub**: Whether the remote points to a GitHub repository
+1. **저장소 소유자**: URL에서 추출. 예: `https://github.com/github/spec-kit.git` -> `github`
+2. **저장소 이름**: URL에서 추출. 예: `https://github.com/github/spec-kit.git` -> `spec-kit`
+3. **GitHub 여부**: 원격이 실제로 GitHub 저장소를 가리키는지
 
-Supported URL formats:
+지원하는 URL 형식:
+
 - HTTPS: `https://github.com/<owner>/<repo>.git`
 - SSH: `git@github.com:<owner>/<repo>.git`
 
 > [!CAUTION]
-> ONLY report a GitHub repository if the remote URL actually points to github.com.
-> Do NOT assume the remote is GitHub if the URL format doesn't match.
+> 원격 URL이 실제로 `github.com`을 가리킬 때만 GitHub 저장소라고 보고해야 한다.
+> URL 형식이 비슷하다고 해서 GitHub라고 추정하면 안 된다.
 
-## Graceful Degradation
+## 점진적 저하 처리
 
-If Git is not installed, the directory is not a Git repository, or no remote is configured:
-- Return an empty result
-- Do NOT error — other workflows should continue without Git remote information
+Git이 설치되지 않았거나, 현재 디렉터리가 Git 저장소가 아니거나, 원격이 설정되지 않았으면:
+
+- 빈 결과를 반환한다.
+- 오류를 발생시키지 않는다. 다른 워크플로는 원격 정보 없이 계속 진행되어야 한다.

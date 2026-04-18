@@ -1,4 +1,4 @@
-name: Fix
+name: 버그 수정
 description: 버그 수정용 이슈 템플릿
 title: "[Fix] "
 labels:
@@ -7,12 +7,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        생성된 이슈 번호의 숫자 부분이 branch naming의 `issueNum`입니다.
-        예: 이슈가 `#123`이면 branch는 `hotfix/back-end/123-auth-timeout` 형식을 사용합니다.
+        생성된 이슈 번호의 숫자 부분이 브랜치 이름의 `issueNum`입니다.
+        예: 이슈가 `#123`이면 브랜치는 `hotfix/back-end/123-auth-timeout` 형식을 사용합니다.
   - type: textarea
     id: summary
     attributes:
-      label: Summary
+      label: 요약
       description: 버그를 한 줄로 요약합니다.
       placeholder: 로그인 세션이 모바일 복귀 후 만료로 오판되는 문제
     validations:
@@ -20,7 +20,7 @@ body:
   - type: dropdown
     id: workstream
     attributes:
-      label: Workstream
+      label: 작업 영역
       description: 이 버그의 주 작업 영역을 선택합니다.
       options:
         - Front-end
@@ -30,21 +30,21 @@ body:
   - type: textarea
     id: bug_description
     attributes:
-      label: Bug Description
+      label: 버그 설명
       description: 현재 발생하는 문제를 구체적으로 적습니다.
     validations:
       required: true
   - type: textarea
     id: expected_behavior
     attributes:
-      label: Expected Behavior
+      label: 기대 동작
       description: 기대하는 동작을 적습니다.
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: Reproduction
+      label: 재현 절차
       description: 재현 절차를 순서대로 적습니다.
       placeholder: |
         1. 모바일 웹에서 로그인한다
@@ -55,7 +55,7 @@ body:
   - type: checkboxes
     id: docs_impact
     attributes:
-      label: Docs Impact
+      label: 문서 영향
       options:
         - label: Docs/api-spec-vX.Y.md 업데이트 필요
         - label: Docs/FE-comment-vX.Y.md 업데이트 필요
@@ -64,11 +64,10 @@ body:
   - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance Criteria
+      label: 완료 기준
       description: 체크 가능한 수정 완료 조건을 적습니다.
       placeholder: |
         - [ ] 재현 절차로 더 이상 오류가 발생하지 않는다
         - [ ] 관련 테스트가 추가되거나 갱신된다
     validations:
       required: true
-

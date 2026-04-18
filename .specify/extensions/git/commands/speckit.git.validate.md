@@ -1,49 +1,53 @@
 ---
-description: "Validate current branch follows feature branch naming conventions"
+description: "현재 브랜치가 기능 브랜치 네이밍 규칙을 따르는지 검증한다"
 ---
 
-# Validate Feature Branch
+# 기능 브랜치 검증
 
-Validate that the current Git branch follows the expected feature branch naming conventions.
+현재 Git 브랜치가 기대하는 기능 브랜치 네이밍 규칙을 따르는지 검증한다.
 
-## Prerequisites
+## 선행 조건
 
-- Check if Git is available by running `git rev-parse --is-inside-work-tree 2>/dev/null`
-- If Git is not available, output a warning and skip validation:
-  ```
-  [specify] Warning: Git repository not detected; skipped branch validation
-  ```
+- `git rev-parse --is-inside-work-tree 2>/dev/null`로 Git 사용 가능 여부를 확인한다.
+- Git을 사용할 수 없으면 아래 경고를 출력하고 검증을 건너뛴다.
 
-## Validation Rules
+```text
+[specify] Warning: Git repository not detected; skipped branch validation
+```
 
-Get the current branch name:
+## 검증 규칙
+
+현재 브랜치 이름은 아래 명령으로 확인한다.
 
 ```bash
 git rev-parse --abbrev-ref HEAD
 ```
 
-The branch name must match one of these patterns:
+브랜치 이름은 아래 패턴 중 하나와 일치해야 한다.
 
-1. **Sequential**: `^[0-9]{3,}-` (e.g., `001-feature-name`, `042-fix-bug`, `1000-big-feature`)
-2. **Timestamp**: `^[0-9]{8}-[0-9]{6}-` (e.g., `20260319-143022-feature-name`)
+1. **순차 번호 방식**: `^[0-9]{3,}-` (예: `001-feature-name`, `042-fix-bug`, `1000-big-feature`)
+2. **타임스탬프 방식**: `^[0-9]{8}-[0-9]{6}-` (예: `20260319-143022-feature-name`)
 
-## Execution
+## 실행
 
-If on a feature branch (matches either pattern):
-- Output: `✓ On feature branch: <branch-name>`
-- Check if the corresponding spec directory exists under `specs/`:
-  - For sequential branches, look for `specs/<prefix>-*` where prefix matches the numeric portion
-  - For timestamp branches, look for `specs/<prefix>-*` where prefix matches the `YYYYMMDD-HHMMSS` portion
-- If spec directory exists: `✓ Spec directory found: <path>`
-- If spec directory missing: `⚠ No spec directory found for prefix <prefix>`
+현재 브랜치가 기능 브랜치 패턴과 일치하면:
 
-If NOT on a feature branch:
-- Output: `✗ Not on a feature branch. Current branch: <branch-name>`
-- Output: `Feature branches should be named like: 001-feature-name or 20260319-143022-feature-name`
+- `✓ On feature branch: <branch-name>` 출력
+- `specs/` 아래에 대응하는 스펙 디렉터리가 있는지 확인
+  - 순차 번호 방식이면 `specs/<prefix>-*`
+  - 타임스탬프 방식이면 `specs/<prefix>-*`
+- 스펙 디렉터리가 있으면 `✓ Spec directory found: <path>` 출력
+- 스펙 디렉터리가 없으면 `⚠ No spec directory found for prefix <prefix>` 출력
 
-## Graceful Degradation
+기능 브랜치가 아니면:
 
-If Git is not installed or the directory is not a Git repository:
-- Check the `SPECIFY_FEATURE` environment variable as a fallback
-- If set, validate that value against the naming patterns
-- If not set, skip validation with a warning
+- `✗ Not on a feature branch. Current branch: <branch-name>` 출력
+- `Feature branches should be named like: 001-feature-name or 20260319-143022-feature-name` 출력
+
+## 점진적 저하 처리
+
+Git이 설치되지 않았거나 현재 디렉터리가 Git 저장소가 아니면:
+
+- 대체 수단으로 `SPECIFY_FEATURE` 환경 변수를 확인한다.
+- 값이 있으면 같은 패턴으로 검증한다.
+- 값이 없으면 경고를 출력하고 검증을 건너뛴다.

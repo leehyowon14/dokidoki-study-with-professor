@@ -1,50 +1,50 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# [PROJECT_NAME] 헌장
+<!-- 예시: 스펙 헌장, TaskFlow 헌장 등 -->
 
-## Core Principles
+## 핵심 원칙
 
 ### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
+<!-- 예시: I. 라이브러리 우선 -->
 [PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+<!-- 예시: 모든 기능은 독립 라이브러리로 시작해야 하며, 라이브러리는 독립 테스트와 문서화가 가능해야 한다. -->
 
 ### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
+<!-- 예시: II. CLI 인터페이스 -->
 [PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+<!-- 예시: 모든 라이브러리는 CLI를 통해 기능을 노출해야 하며, 입력과 출력 규약이 명확해야 한다. -->
 
 ### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
+<!-- 예시: III. 테스트 우선 (타협 불가) -->
 [PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+<!-- 예시: TDD 필수. 테스트 작성 -> 사용자 승인 -> 테스트 실패 확인 -> 구현 순서를 엄격히 지킨다. -->
 
 ### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
+<!-- 예시: IV. 통합 테스트 -->
 [PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+<!-- 예시: 신규 계약, 계약 변경, 서비스 간 통신, 공유 스키마는 반드시 통합 테스트로 검증한다. -->
 
 ### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
+<!-- 예시: V. 관측 가능성, VI. 버전 관리와 호환성, VII. 단순성 -->
 [PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+<!-- 예시: 디버깅 가능한 구조, 구조화된 로그, 버전 정책, 단순한 설계 우선 원칙을 기술한다. -->
 
 ## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+<!-- 예시: 추가 제약, 보안 요구사항, 성능 기준 등 -->
 
 [SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+<!-- 예시: 기술 스택 요구사항, 규정 준수 기준, 배포 정책 등 -->
 
 ## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+<!-- 예시: 개발 워크플로, 리뷰 절차, 품질 게이트 등 -->
 
 [SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+<!-- 예시: 코드 리뷰 요구사항, 테스트 게이트, 배포 승인 절차 등 -->
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+## 거버넌스
+<!-- 예시: 헌장이 다른 관행보다 우선하며, 개정에는 문서화와 승인, 마이그레이션 계획이 필요하다. -->
 
 [GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+<!-- 예시: 모든 PR과 리뷰는 헌장 준수 여부를 확인해야 하며, 복잡도 증가는 정당화가 필요하다. -->
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**버전**: [CONSTITUTION_VERSION] | **비준일**: [RATIFICATION_DATE] | **최종 개정일**: [LAST_AMENDED_DATE]
+<!-- 예시: 버전 2.1.1 | 비준일 2025-06-13 | 최종 개정일 2025-07-16 -->

@@ -1,48 +1,49 @@
 ---
-description: "Auto-commit changes after a Spec Kit command completes"
+description: "Spec Kit 명령 완료 후 변경 사항을 자동 커밋한다"
 ---
 
-# Auto-Commit Changes
+# 자동 커밋
 
-Automatically stage and commit all changes after a Spec Kit command completes.
+Spec Kit 명령이 끝난 뒤 모든 변경 사항을 자동으로 스테이징하고 커밋한다.
 
-## Behavior
+## 동작 방식
 
-This command is invoked as a hook after (or before) core commands. It:
+이 명령은 핵심 명령의 전후 훅으로 호출된다. 동작 순서는 아래와 같다.
 
-1. Determines the event name from the hook context (e.g., if invoked as an `after_specify` hook, the event is `after_specify`; if `before_plan`, the event is `before_plan`)
-2. Checks `.specify/extensions/git/git-config.yml` for the `auto_commit` section
-3. Looks up the specific event key to see if auto-commit is enabled
-4. Falls back to `auto_commit.default` if no event-specific key exists
-5. Uses the per-command `message` if configured, otherwise a default message
-6. If enabled and there are uncommitted changes, runs `git add .` + `git commit`
+1. 훅 컨텍스트에서 이벤트 이름을 확인한다.
+   예: `after_specify` 훅에서 호출되면 이벤트는 `after_specify`, `before_plan`이면 `before_plan`
+2. `.specify/extensions/git/git-config.yml`의 `auto_commit` 섹션을 확인한다.
+3. 해당 이벤트 키에 자동 커밋이 활성화되어 있는지 조회한다.
+4. 이벤트별 키가 없으면 `auto_commit.default` 값을 사용한다.
+5. 명령별 `message`가 설정되어 있으면 그 값을, 없으면 기본 메시지를 사용한다.
+6. 자동 커밋이 활성화되어 있고 미커밋 변경이 있으면 `git add .`와 `git commit`을 실행한다.
 
-## Execution
+## 실행
 
-Determine the event name from the hook that triggered this command, then run the script:
+이 명령을 호출한 훅에서 이벤트 이름을 확인한 뒤 아래 스크립트를 실행한다.
 
 - **Bash**: `.specify/extensions/git/scripts/bash/auto-commit.sh <event_name>`
 - **PowerShell**: `.specify/extensions/git/scripts/powershell/auto-commit.ps1 <event_name>`
 
-Replace `<event_name>` with the actual hook event (e.g., `after_specify`, `before_plan`, `after_implement`).
+`<event_name>`에는 실제 훅 이벤트 이름을 넣는다. 예: `after_specify`, `before_plan`, `after_implement`
 
-## Configuration
+## 설정
 
-In `.specify/extensions/git/git-config.yml`:
+`.specify/extensions/git/git-config.yml` 예시:
 
 ```yaml
 auto_commit:
-  default: false          # Global toggle — set true to enable for all commands
+  default: false          # 전체 명령의 기본값. true면 전부 활성화
   after_specify:
-    enabled: true          # Override per-command
+    enabled: true         # 명령별 재정의
     message: "[Spec Kit] Add specification"
   after_plan:
     enabled: false
     message: "[Spec Kit] Add implementation plan"
 ```
 
-## Graceful Degradation
+## 점진적 저하 처리
 
-- If Git is not available or the current directory is not a repository: skips with a warning
-- If no config file exists: skips (disabled by default)
-- If no changes to commit: skips with a message
+- Git을 사용할 수 없거나 현재 디렉터리가 저장소가 아니면 경고를 내고 건너뛴다.
+- 설정 파일이 없으면 비활성화 상태로 간주하고 건너뛴다.
+- 커밋할 변경 사항이 없으면 메시지를 남기고 건너뛴다.
