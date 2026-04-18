@@ -50,4 +50,11 @@ class ApiContractSmokeContractTest extends ApiContractTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("NOT_FOUND"));
     }
+
+    @Test
+    void missingRequiredHeaderKeeps400Response() throws Exception {
+        mockMvc.perform(get("/contract-smoke/header"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+    }
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -137,6 +138,18 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
+        if (exception instanceof org.springframework.web.ErrorResponse errorResponse) {
+            HttpStatusCode statusCode = errorResponse.getStatusCode();
+            return ResponseEntity.status(statusCode).body(
+                ErrorResponse.of(
+                    statusCode,
+                    resolveFrameworkErrorCode(exception),
+                    resolveFrameworkMessage(exception),
+                    request.getRequestURI()
+                )
+            );
+        }
+
         log.error(
             "처리되지 않은 예외 발생. method={}, uri={}, remoteAddr={}",
             request.getMethod(),
@@ -224,6 +237,10 @@ public class GlobalExceptionHandler {
             return "NOT_ACCEPTABLE";
         }
 
+        if (exception instanceof ServletRequestBindingException) {
+            return "BAD_REQUEST";
+        }
+
         return "FRAMEWORK_ERROR";
     }
 
@@ -242,6 +259,10 @@ public class GlobalExceptionHandler {
 
         if (exception instanceof HttpMediaTypeNotAcceptableException) {
             return "응답 가능한 미디어 타입이 없습니다.";
+        }
+
+        if (exception instanceof ServletRequestBindingException) {
+            return "요청 헤더 또는 바인딩 값이 올바르지 않습니다.";
         }
 
         return "요청 처리에 실패했습니다.";
