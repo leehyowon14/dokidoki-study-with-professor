@@ -216,7 +216,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(
             ErrorResponse.of(
                 statusCode,
-                resolveFrameworkErrorCode(exception),
+                resolveFrameworkErrorCode(exception, statusCode),
                 resolveFrameworkMessage(exception),
                 path
             ),
@@ -253,7 +253,11 @@ public class GlobalExceptionHandler {
         return HttpHeaders.EMPTY;
     }
 
-    private String resolveFrameworkErrorCode(Exception exception) {
+    private String resolveFrameworkErrorCode(Exception exception, HttpStatusCode statusCode) {
+        if (statusCode.value() == HttpStatus.BAD_REQUEST.value() && !isCsrfException(exception)) {
+            return "BAD_REQUEST";
+        }
+
         if (exception instanceof NoResourceFoundException) {
             return "NOT_FOUND";
         }
@@ -275,6 +279,10 @@ public class GlobalExceptionHandler {
         }
 
         return "FRAMEWORK_ERROR";
+    }
+
+    private boolean isCsrfException(Exception exception) {
+        return exception.getClass().getName().startsWith("org.springframework.security.web.csrf");
     }
 
     private String resolveFrameworkMessage(Exception exception) {
