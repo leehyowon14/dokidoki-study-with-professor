@@ -56,6 +56,9 @@
 
 `issueNum`은 GitHub 이슈 `#123`의 숫자 `123`이다.
 
+동시 작업이 가능한 이슈에는 `parallel` 태그를 단다. 여기서 동시 작업 가능이란 선행
+의존성 없이 다른 이슈와 병렬 진행할 수 있고, 주요 write set 충돌 가능성이 낮다는 뜻이다.
+
 ### Git 작업 주의사항
 
 - `Backend/build/`, `Backend/.gradle/` 등 gitignore 대상은 커밋하지 않는다.
