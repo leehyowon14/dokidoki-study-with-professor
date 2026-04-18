@@ -60,7 +60,7 @@ fun registerSuiteTask(taskName: String, includePattern: String, descriptionText:
         useJUnitPlatform()
         filter {
             includeTestsMatching(includePattern)
-            isFailOnNoMatchingTests = false
+            isFailOnNoMatchingTests = true
         }
         shouldRunAfter(tasks.named("test"))
     }

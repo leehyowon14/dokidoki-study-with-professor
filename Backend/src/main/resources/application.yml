@@ -3,8 +3,8 @@ spring:
     name: april-backend
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/april}
-    username: ${SPRING_DATASOURCE_USERNAME:april}
-    password: ${SPRING_DATASOURCE_PASSWORD:april}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
@@ -19,11 +19,11 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  session:
-    timeout: 12h
-
 server:
   shutdown: graceful
+  servlet:
+    session:
+      timeout: 12h
 
 nanobanana:
   api-key: ${NANOBANANA_API_KEY:}
@@ -33,4 +33,3 @@ logging:
   level:
     org.springframework.security: INFO
     org.hibernate.SQL: WARN
-

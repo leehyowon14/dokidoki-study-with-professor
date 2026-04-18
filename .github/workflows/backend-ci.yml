@@ -37,15 +37,5 @@ jobs:
       - name: Gradle 실행 권한 부여
         run: chmod +x gradlew
 
-      - name: 조립
-        run: ./gradlew --no-daemon clean assemble
-
-      - name: 계약 테스트
-        run: ./gradlew --no-daemon contractTest
-
-      - name: 통합 테스트
-        run: ./gradlew --no-daemon integrationTest
-
-      - name: 단위 테스트
-        run: ./gradlew --no-daemon unitTest
-
+      - name: 조립 및 검증
+        run: ./gradlew --no-daemon clean assemble contractTest integrationTest unitTest
