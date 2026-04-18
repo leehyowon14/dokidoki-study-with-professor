@@ -59,4 +59,11 @@ class ApiContractSmokeContractTest extends ApiContractTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
     }
+
+    @Test
+    void frameworkBadRequestErrorResponseKeepsBadRequestCode() throws Exception {
+        mockMvc.perform(get("/contract-smoke/error-response-bad-request"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
+    }
 }
