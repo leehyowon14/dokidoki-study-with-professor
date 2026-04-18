@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16.4:///april_test
+    username: april
+    password: april
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: false
+  test:
+    database:
+      replace: none
+
+nanobanana:
+  api-key: test-key
+  base-url: http://localhost/mock-nanobanana
+
+logging:
+  level:
+    org.testcontainers: INFO
+    org.springframework.test.context: INFO
+

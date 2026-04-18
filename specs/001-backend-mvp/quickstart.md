@@ -18,7 +18,13 @@ export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/april
 export SPRING_DATASOURCE_USERNAME=april
 export SPRING_DATASOURCE_PASSWORD=april
 export NANOBANANA_API_KEY=change-me
+export NANOBANANA_BASE_URL=https://api.nanobanana.example
 ```
+
+주의:
+
+- `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`는 애플리케이션 설정에 기본값이 없다.
+- 로컬 실행이라도 DB 계정 정보는 명시적으로 export 해야 한다.
 
 ## 3. 구현 시작 순서
 
@@ -60,8 +66,11 @@ Backend/
 
 ```bash
 cd Backend
-./gradlew test --tests "*Contract*"
+./gradlew contractTest
 ```
+
+- 현재 suite task는 `*Contract*`, `*Integration*`, `*Unit*` 네이밍 규칙을 기준으로 테스트를 찾는다.
+- 테스트가 존재하는데 suite 패턴과 맞지 않으면 해당 task는 실패해야 한다.
 
 ### 2단계: 통합 테스트 작성
 
@@ -76,7 +85,7 @@ cd Backend
 
 ```bash
 cd Backend
-./gradlew test --tests "*Integration*"
+./gradlew integrationTest
 ```
 
 ### 3단계: 단위 테스트 작성
@@ -91,7 +100,7 @@ cd Backend
 
 ```bash
 cd Backend
-./gradlew test --tests "*Unit*"
+./gradlew unitTest
 ```
 
 ## 6. 애플리케이션 실행
@@ -100,6 +109,11 @@ cd Backend
 cd Backend
 ./gradlew bootRun
 ```
+
+최초 실행 전 확인:
+
+- 로컬 Gradle이 없어도 `Backend/gradlew`로 실행한다.
+- CI와 동일한 기본 확인 명령은 `./gradlew clean assemble contractTest integrationTest unitTest` 1회 실행이다.
 
 ## 7. 최소 스모크 시나리오
 
@@ -121,3 +135,4 @@ cd Backend
 - 백엔드에서 먼저 발견한 계약 이슈는 `Docs/BE-comment-v1.0.md`에 기록한다.
 - 계약 변경은 `Docs/api-spec-v0.1.md`와 OpenAPI 계약을 함께 갱신한다.
 - 시나리오 구조, 대사 포맷, 호감도 구간이 바뀌면 `Docs/dialogue-content-spec-v0.1.md`와 `Backend/Reference/`도 함께 갱신한다.
+- 백엔드 실행 기준선이 바뀌면 이 문서와 `Docs/BE-comment-v1.0.md`를 같은 변경 세트에서 갱신한다.

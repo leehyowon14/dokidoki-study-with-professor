@@ -22,3 +22,11 @@
 - 질문 또는 문제:
 - 기대하는 프론트엔드 조치:
 - 해결 내용:
+
+### 2026-04-19 / 이슈 #1 / 상태: 해소
+
+- 작업 브랜치: `feat/back-end/1-common-platform-ci-init`
+- 관련 문서/API: `specs/001-backend-mvp/quickstart.md`, `.github/workflows/backend-ci.yml`
+- 질문 또는 문제: 백엔드 초기 구현 기준에서 실행 명령과 필수 환경 변수가 문서와 실제 프로젝트 골격에 맞춰져 있어야 함
+- 기대하는 프론트엔드 조치: 없음
+- 해결 내용: `Backend/gradlew`, `clean assemble contractTest integrationTest unitTest` 1회 실행 기준으로 CI와 로컬 검증 절차를 맞추고 `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `NANOBANANA_API_KEY`, `NANOBANANA_BASE_URL`를 필수 확인 환경 변수로 명시. DB 계정 정보 fallback은 제거하고 세션 타임아웃은 `server.servlet.session.timeout` 기준으로 고정
