@@ -35,7 +35,7 @@
 | userId | UUID | 사용자 FK |
 | professorName | string | 필수 |
 | gender | enum | `male`, `female` |
-| personalityType | enum | `cold`, `kind`, `obsessive`, `tsundere` |
+| personalityType | enum | `gentle`, `tsundere`, `english_mix`, `shy` |
 | sourcePhotoUrl | string nullable | 업로드한 교수 원본 사진 URL |
 | characterAssetStatus | enum | `pending`, `ready` |
 | representativeAssetUrl | string nullable | 대표 캐릭터 에셋 URL |
@@ -143,13 +143,33 @@
 | triggerType | enum | `first_visit`, `daily_first_visit`, `study_start`, `study_hidden_return`, `study_end`, `final_result` 등 |
 | affectionMin | integer | 최소값 |
 | affectionMax | integer | 최대값 |
-| text | text | 필수 |
+| rangeBand | string | `0-19`, `20-49`, `50-84`, `85-100` |
+| sourceMarkdown | text | `Reference` 기준 원문 마크다운 |
+| referenceSourcePath | string | 원문 파일 경로 |
 | weight | integer | 기본 1 이상 |
 | isActive | boolean | 기본 true |
 
 제약:
 
 - `professorId`와 `personalityType` 중 하나는 반드시 존재
+- `{교수}`는 런타임 응답 시 실제 교수 이름으로 치환
+- `{주인공}`은 작성용 라벨이며 런타임 응답에 그대로 노출하지 않음
+
+### 런타임 스크립트 라인
+
+| 필드 | 타입 | 규칙 |
+| --- | --- | --- |
+| kind | enum | `narration`, `dialogue`, `stage_direction`, `inner_monologue` |
+| speakerRole | enum optional | `dialogue` 라인일 때만 `professor`, `protagonist` |
+| speakerName | string optional | 교수 대사 라인일 때만 실제 교수 이름 |
+| text | text | 렌더 대상 문장 |
+
+규칙:
+
+- 모든 라인은 `kind`, `text`를 가진다.
+- `dialogue` 라인만 `speakerRole`을 가진다.
+- 교수 대사 라인만 `speakerName`을 가진다.
+- 적용되지 않는 키는 `null`로 저장하거나 응답하지 않고 생략한다.
 
 ### 시나리오 이벤트
 
@@ -159,7 +179,10 @@
 | professorId | UUID nullable | 특정 교수 전용 |
 | personalityType | enum nullable | 성격 공통 대체 규칙 |
 | title | string | 필수 |
-| body | text | 필수 |
+| rangeBand | string | `0-19`, `20-49`, `50-84`, `85-100` |
+| branchKey | string | 예: `branch-special-consultation` |
+| sourceMarkdown | text | 이벤트 원문 마크다운 |
+| referenceSourcePath | string | 원문 파일 경로 |
 | triggerType | enum | 기본 `study_end` |
 | affectionMin | integer | 최소 호감도 |
 | affectionMax | integer | 최대 호감도 |
@@ -172,7 +195,7 @@
 | id | UUID | 시스템 생성 |
 | eventId | UUID | 시나리오 이벤트 FK |
 | choiceText | string | 필수 |
-| resultText | text | 필수 |
+| resultScriptLines | json array | 선택 후 반응 스크립트 라인 |
 | affectionDelta | integer | 음수, 0, 양수 가능 |
 | orderNo | integer | 1부터 시작 |
 
@@ -186,6 +209,8 @@
 | primaryProfessorId | UUID | 대표 엔딩 교수 |
 | highestProfessorId | UUID | 최고 호감도 교수 |
 | lowestProfessorId | UUID | 최저 호감도 교수 |
+| endingType | enum | `happy`, `normal`, `bad` |
+| script | json array | 엔딩 스크립트 라인 |
 | createdAt | datetime | 생성 시각 |
 
 ## 3. 파생 규칙

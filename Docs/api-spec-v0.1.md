@@ -69,7 +69,7 @@ API 명세 v0.1
 
 - `professorName`
 - `gender`: `male` 또는 `female`
-- `personalityType`
+- `personalityType`: `gentle`, `tsundere`, `english_mix`, `shy`
 - `sourcePhotoUrl` nullable: 업로드 완료된 교수 원본 사진 URL
 
 처리 규칙:
@@ -154,8 +154,18 @@ API 명세 v0.1
 - `sessionSummary.idlePenaltyCount`
 - `sessionSummary.currentProfessorAffectionDelta`
 - `sessionSummary.currentProfessorNextAffectionScore`
-- `dialogue`
+- `dialogue.triggerType`
+- `dialogue.lines[]`
 - `event`
+
+`dialogue.lines[]` 규칙:
+
+- 모든 항목은 `kind`, `text`를 가진다.
+- `kind = dialogue`인 항목만 `speakerRole`을 가진다.
+- `speakerRole = professor`인 대사 라인만 `speakerName`을 가진다.
+- `{교수}`는 서버에서 실제 교수 이름으로 치환한 뒤 `speakerName`으로 전달한다.
+- `{주인공}`은 작성용 라벨이며 응답 본문에는 포함하지 않는다.
+- 적용되지 않는 키는 `null`로 보내지 않고 응답에서 생략한다.
 
 ## 6. 시나리오 이벤트
 
@@ -165,9 +175,20 @@ API 명세 v0.1
 
 응답 핵심 필드:
 
-- `result.resultText`
+- `result.lines[]`
 - `result.affectionDelta`
 - `result.nextAffectionScore`
+- `result.nextState`: `resolved`
+
+`event` 응답 필드:
+
+- `event.triggered`
+- `event.eventId`
+- `event.title`
+- `event.rangeBand`: `0-19`, `20-49`, `50-84`, `85-100`
+- `event.branchKey`
+- `event.lines[]`
+- `event.choices[]`
 
 ## 7. 최종 결과
 
@@ -185,7 +206,8 @@ API 명세 v0.1
 - `result.highestProfessorId`
 - `result.lowestProfessorId`
 - `result.scoreBand`
-- `result.dialogues`
+- `result.endingType`
+- `result.script[]`
 
 ## 8. 버전 관리 규칙
 

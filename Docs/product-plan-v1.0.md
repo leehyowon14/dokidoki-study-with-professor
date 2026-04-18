@@ -107,10 +107,10 @@
 
 예시 성격 타입:
 
-- 냉정형
-- 다정형
-- 집착형
-- 새침형
+- `gentle`: 다정한 교수님
+- `tsundere`: 나한테만 츤데레 냉미남 교수님
+- `english_mix`: 영어 섞어쓰는 유쾌한 교수님
+- `shy`: 수줍은 교수님
 
 ### 6.3 캐릭터 에셋 생성
 
@@ -269,6 +269,8 @@ effectiveStudySeconds < 1200 이면 penalty = 2
 
 - 공부 종료 후 30% 확률로 발생한다.
 - 짧은 대사 출력이 아니라 별도 선택지가 포함된 이벤트다.
+- 이벤트는 호감도 구간 `0-19`, `20-49`, `50-84`, `85-100`을 기준으로 다른 풀에서 선택된다.
+- 이벤트 원문은 구간 공통 파일과 교수 성격별 분기 파일을 조합하는 방식으로 관리한다.
 
 ## 11. 미연시 이벤트 시스템
 
@@ -345,10 +347,10 @@ effectiveStudySeconds < 1200 이면 penalty = 2
 
 최종 결과 대사는 최소 아래 구간을 반영한다.
 
-- 호감도 100(최대치)
-- 호감도 50 이상
-- 호감도 10 이상
-- 호감도 0
+- 호감도 85~100
+- 호감도 50~84
+- 호감도 20~49
+- 호감도 0~19
 
 ### 13.5 설계 의도
 
@@ -509,15 +511,19 @@ effectiveStudySeconds < 1200 이면 penalty = 2
 - `dialogueId`
 - `professorId` or `personalityType`
 - `triggerType`
-- `affectionRange`
-- `text`
+- `rangeBand`
+- `scriptLineList`
+- `referenceSourcePath`
 
 ### 18.7 시나리오 이벤트
 
 - `eventId`
 - `professorId` or `personalityType`
 - `title`
+- `rangeBand`
+- `branchKey`
 - `triggerCondition`
+- `scriptLineList`
 - `choiceList`
 - `resultMapping`
 

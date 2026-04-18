@@ -73,6 +73,7 @@
 ### 공유 계약
 
 - [`Docs/`에 갱신할 API 엔드포인트, 페이로드, 오류 코드, 문서]
+- [`Backend/Reference/`와 `Docs/dialogue-content-spec-vX.Y.md`까지 포함한 콘텐츠 기준 문서 영향]
 
 ### 병렬 작업 계획
 
@@ -96,6 +97,7 @@
 ## 문서 및 커뮤니케이션 영향 *(필수)*
 
 - **생성/갱신 문서**: [예: `Docs/api-spec-v0.2.md`, `Docs/FE-comment-v1.0.md`]
+- **Reference 동기화 대상**: [예: `Backend/Reference/85-100/common.md`, `없음`]
 - **API / 계약 변경점**: [페이로드 또는 계약 변경 설명]
 - **프론트엔드 미해결 질문**: [미해결 FE -> BE 질문 목록 또는 `없음`]
 - **백엔드 미해결 질문**: [미해결 BE -> FE 질문 목록 또는 `없음`]

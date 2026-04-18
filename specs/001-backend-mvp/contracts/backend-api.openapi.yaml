@@ -303,6 +303,7 @@ components:
           enum: [male, female]
         personalityType:
           type: string
+          enum: [gentle, tsundere, english_mix, shy]
         sourcePhotoUrl:
           type: string
           format: uri
@@ -327,6 +328,7 @@ components:
           enum: [male, female]
         personalityType:
           type: string
+          enum: [gentle, tsundere, english_mix, shy]
         sourcePhotoUrl:
           type: string
           format: uri
@@ -475,9 +477,11 @@ components:
       properties:
         triggerType:
           type: string
-        text:
-          type: string
-      required: [triggerType, text]
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScriptLine"
+      required: [triggerType, lines]
     EventPayload:
       type: object
       properties:
@@ -490,8 +494,17 @@ components:
         title:
           type: string
           nullable: true
-        body:
+        rangeBand:
           type: string
+          enum: ["0-19", "20-49", "50-84", "85-100"]
+          nullable: true
+        branchKey:
+          type: string
+          nullable: true
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScriptLine"
           nullable: true
         choices:
           type: array
@@ -513,13 +526,18 @@ components:
         result:
           type: object
           properties:
-            resultText:
-              type: string
+            lines:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScriptLine"
             affectionDelta:
               type: integer
             nextAffectionScore:
               type: integer
-          required: [resultText, affectionDelta, nextAffectionScore]
+            nextState:
+              type: string
+              enum: [resolved]
+          required: [lines, affectionDelta, nextAffectionScore, nextState]
       required: [result]
     FinalResultRequest:
       type: object
@@ -544,14 +562,67 @@ components:
               format: uuid
             scoreBand:
               type: string
-            dialogues:
-              type: object
-              additionalProperties:
-                type: string
+            endingType:
+              type: string
+              enum: [happy, normal, bad]
+            script:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScriptLine"
           required:
             - primaryProfessorId
             - highestProfessorId
             - lowestProfessorId
             - scoreBand
-            - dialogues
+            - endingType
+            - script
       required: [result]
+    ScriptLine:
+      oneOf:
+        - $ref: "#/components/schemas/ProfessorDialogueLine"
+        - $ref: "#/components/schemas/ProtagonistDialogueLine"
+        - $ref: "#/components/schemas/NonSpeakerLine"
+    ProfessorDialogueLine:
+      type: object
+      description: 교수 대사 라인. speakerRole과 speakerName을 함께 포함한다.
+      properties:
+        kind:
+          type: string
+          enum: [dialogue]
+        speakerRole:
+          type: string
+          enum: [professor]
+        speakerName:
+          type: string
+        text:
+          type: string
+      required: [kind, speakerRole, speakerName, text]
+    ProtagonistDialogueLine:
+      type: object
+      description: 주인공 대사 라인. speakerRole만 포함하고 speakerName은 생략한다.
+      properties:
+        kind:
+          type: string
+          enum: [dialogue]
+        speakerRole:
+          type: string
+          enum: [protagonist]
+        text:
+          type: string
+      required: [kind, speakerRole, text]
+      not:
+        required: [speakerName]
+    NonSpeakerLine:
+      type: object
+      description: 상황 설명, 무대 지시, 내면 독백 라인. 화자 관련 키는 포함하지 않는다.
+      properties:
+        kind:
+          type: string
+          enum: [narration, stage_direction, inner_monologue]
+        text:
+          type: string
+      required: [kind, text]
+      not:
+        anyOf:
+          - required: [speakerRole]
+          - required: [speakerName]

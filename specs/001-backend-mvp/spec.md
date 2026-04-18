@@ -115,6 +115,8 @@
 
 - 버전이 명시된 기준 계약 문서는 `Docs/api-spec-v0.1.md`다.
 - 도메인 규칙 기준은 `Docs/developer-spec-v0.1.md`와 `Docs/product-plan-v1.0.md`다.
+- 대사 및 시나리오 렌더 계약 기준은 `Docs/dialogue-content-spec-v0.1.md`다.
+- 시나리오 원문 기준은 `Backend/Reference/` 아래 마크다운 문서다.
 - 계약 변경이나 작업 중 질문은 `Docs/FE-comment-v1.0.md`와
   `Docs/BE-comment-v1.0.md`에 기록한다.
 
@@ -169,12 +171,16 @@
 ## 문서 및 커뮤니케이션 영향 *(필수)*
 
 - **생성/갱신 문서**: `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`,
-  `Docs/BE-comment-v1.0.md`
+  `Docs/dialogue-content-spec-v0.1.md`, `Docs/BE-comment-v1.0.md`,
+  `Backend/Reference/` 관련 시나리오 원문
 - **API / 계약 변경점**: 현재 `Docs/api-spec-v0.1.md`의 인증, 교수, 공부 세션,
   이벤트, 최종 결과 계약을 백엔드 구현 기준으로 고정한다. 특히 교수 등록/조회 계약은
   `male`, `female` 성별 제한과 `sourcePhotoUrl`, `characterAssetStatus`,
   `representativeAssetUrl`, `characterAssets` 필드를 포함해야 한다. 구현 중 계약이
   바뀌면 문서를 먼저 갱신해야 한다.
+- **대사 콘텐츠 동기화 규칙**: 시나리오 구조, 호감도 구간, 스크립트 라인 포맷,
+  플레이스홀더 치환 규칙이 바뀌면 `Docs/dialogue-content-spec-v0.1.md`와
+  `Backend/Reference/` 원문을 같은 변경 세트에서 함께 갱신해야 한다.
 - **프론트엔드 미해결 질문**: 없음. 프론트엔드에서 새로운 요구가 생기면
   `Docs/FE-comment-v1.0.md`에 기록한다.
 - **백엔드 미해결 질문**: 없음. 구현 중 세부 판단 차이는 `Docs/BE-comment-v1.0.md`에

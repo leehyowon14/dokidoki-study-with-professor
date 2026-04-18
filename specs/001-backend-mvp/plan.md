@@ -16,8 +16,8 @@
 
 ## 기술 맥락
 
-**프론트엔드**: 별도 React 워크스트림. 이 plan 범위 밖이며 `Docs/api-spec-v0.1.md`를
-계약 기준으로 소비한다.  
+**프론트엔드**: 별도 React 워크스트림. 이 plan 범위 밖이며 `Docs/api-spec-v0.1.md`,
+`Docs/dialogue-content-spec-v0.1.md`를 계약 기준으로 소비한다.  
 **백엔드**: Java 21, Spring Boot 3.5 기반 REST JSON API, `api/application/domain/infrastructure`
 계층과 `auth`, `professor`, `study`, `dialogue`, `result`, `common` 모듈로 나눈
 모듈형 모놀리스. `professor` 모듈은 교수 프로필, 호감도, 캐릭터 에셋 생성 오케스트레이션을 함께 소유  
@@ -29,7 +29,8 @@ Testcontainers(PostgreSQL), JSON 계약 스냅샷 테스트
 **대상 플랫폼**: 모바일 웹 클라이언트를 위한 HTTP API  
 **프로젝트 유형**: 프론트엔드-백엔드가 엄격히 분리된 웹 애플리케이션  
 **문서 영향 범위**: `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`,
-`Docs/BE-comment-v1.0.md` 검토 및 후속 변경 시 버전 갱신  
+`Docs/dialogue-content-spec-v0.1.md`, `Docs/BE-comment-v1.0.md`,
+`Backend/Reference/` 검토 및 후속 변경 시 버전 갱신  
 **배포 대상 브랜치**: `main` -> 운영, `dev/front-end` -> FE 개발 서버, `dev/back-end` -> BE 개발 서버  
 **제약사항**: TDD 우선, 버전 문서 필수, FE/BE 계약 우선 소통, CI/CD 필수,
 서버 주도 공부 세션 계산, 2인 병렬 협업 가능한 백엔드 설계 필요  
@@ -59,8 +60,12 @@ Docs/
 ├── product-plan-v1.0.md
 ├── developer-spec-v0.1.md
 ├── api-spec-v0.1.md
+├── dialogue-content-spec-v0.1.md
 ├── FE-comment-v1.0.md
 └── BE-comment-v1.0.md
+
+Backend/
+└── Reference/
 
 specs/001-backend-mvp/
 ├── spec.md

@@ -2,7 +2,7 @@
 
 **목적**: 계획 단계로 넘어가기 전에 명세의 완성도와 품질을 검증한다.
 **작성일**: 2026-04-18
-**대상 기능**: [spec.md](/Users/wonny/src/Project/Team/AnimalLeague/April/specs/001-backend-mvp/spec.md)
+**대상 기능**: [spec.md](../spec.md)
 
 ## 내용 품질
 
