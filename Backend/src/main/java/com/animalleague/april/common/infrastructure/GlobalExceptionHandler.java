@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -106,8 +107,10 @@ public class GlobalExceptionHandler {
     ) {
         HttpStatusCode statusCode = exception.getStatusCode();
         String reason = exception.getReason() == null ? "요청 처리에 실패했습니다." : exception.getReason();
-        return ResponseEntity.status(statusCode).body(
-            ErrorResponse.of(statusCode, "RESPONSE_STATUS_ERROR", reason, request.getRequestURI())
+        return new ResponseEntity<>(
+            ErrorResponse.of(statusCode, "RESPONSE_STATUS_ERROR", reason, request.getRequestURI()),
+            exception.getHeaders(),
+            statusCode
         );
     }
 
@@ -121,16 +124,7 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
-        HttpStatusCode statusCode = resolveFrameworkStatusCode(exception);
-
-        return ResponseEntity.status(statusCode).body(
-            ErrorResponse.of(
-                statusCode,
-                resolveFrameworkErrorCode(exception),
-                resolveFrameworkMessage(exception),
-                request.getRequestURI()
-            )
-        );
+        return buildFrameworkErrorResponse(exception, request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
@@ -139,15 +133,7 @@ public class GlobalExceptionHandler {
         HttpServletRequest request
     ) {
         if (exception instanceof org.springframework.web.ErrorResponse errorResponse) {
-            HttpStatusCode statusCode = errorResponse.getStatusCode();
-            return ResponseEntity.status(statusCode).body(
-                ErrorResponse.of(
-                    statusCode,
-                    resolveFrameworkErrorCode(exception),
-                    resolveFrameworkMessage(exception),
-                    request.getRequestURI()
-                )
-            );
+            return buildFrameworkErrorResponse(errorResponse, exception, request.getRequestURI());
         }
 
         log.error(
@@ -200,6 +186,45 @@ public class GlobalExceptionHandler {
         return "잘못된 요청입니다.";
     }
 
+    private ResponseEntity<ErrorResponse> buildFrameworkErrorResponse(
+        Exception exception,
+        String path
+    ) {
+        HttpStatusCode statusCode = resolveFrameworkStatusCode(exception);
+        return buildFrameworkErrorResponse(resolveFrameworkHeaders(exception), exception, statusCode, path);
+    }
+
+    private ResponseEntity<ErrorResponse> buildFrameworkErrorResponse(
+        org.springframework.web.ErrorResponse errorResponse,
+        Exception exception,
+        String path
+    ) {
+        return buildFrameworkErrorResponse(
+            errorResponse.getHeaders(),
+            exception,
+            errorResponse.getStatusCode(),
+            path
+        );
+    }
+
+    private ResponseEntity<ErrorResponse> buildFrameworkErrorResponse(
+        HttpHeaders headers,
+        Exception exception,
+        HttpStatusCode statusCode,
+        String path
+    ) {
+        return new ResponseEntity<>(
+            ErrorResponse.of(
+                statusCode,
+                resolveFrameworkErrorCode(exception),
+                resolveFrameworkMessage(exception),
+                path
+            ),
+            headers,
+            statusCode
+        );
+    }
+
     private HttpStatusCode resolveFrameworkStatusCode(Exception exception) {
         if (exception instanceof NoResourceFoundException noResourceFoundException) {
             return noResourceFoundException.getStatusCode();
@@ -218,6 +243,14 @@ public class GlobalExceptionHandler {
         }
 
         return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    private HttpHeaders resolveFrameworkHeaders(Exception exception) {
+        if (exception instanceof org.springframework.web.ErrorResponse errorResponse) {
+            return errorResponse.getHeaders();
+        }
+
+        return HttpHeaders.EMPTY;
     }
 
     private String resolveFrameworkErrorCode(Exception exception) {
