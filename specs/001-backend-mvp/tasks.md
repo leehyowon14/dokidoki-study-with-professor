@@ -31,7 +31,7 @@
 
 #### 작업 1.2: 계약과 CI 기준선 정리
 
-- [ ] T004 [P] `Docs/api-spec-v0.1.md`와 `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`에 백엔드 계약 기준선을 고정한다.
+- [ ] T004 [P] `Docs/api-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`, `Backend/Reference/`에 백엔드 계약 기준선을 고정한다.
 - [ ] T005 [P] `.github/workflows/backend-ci.yml`에 백엔드 빌드/테스트 CI 워크플로를 추가한다.
 
 ---
@@ -86,7 +86,7 @@
 
 #### 작업 1.8: 사용자 스토리 1 계약 동기화
 
-- [ ] T023 [US1] `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`에 계정, 교수, 캐릭터 에셋 계약 내용을 반영한다.
+- [ ] T023 [US1] `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`, `Backend/Reference/`에 계정, 교수, 캐릭터 에셋, 대사 기준 계약 내용을 반영한다.
 
 **체크포인트**: 사용자 스토리 1이 완전히 동작하고, 문서화되며, 독립적으로 테스트 가능하다.
 
@@ -124,7 +124,7 @@
 
 #### 작업 2.4: 사용자 스토리 2 계약 동기화
 
-- [ ] T037 [US2] `Docs/api-spec-v0.1.md`, `Docs/BE-comment-v1.0.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`에 공부 세션 및 시나리오 이벤트 계약을 반영한다.
+- [ ] T037 [US2] `Docs/api-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`, `Docs/BE-comment-v1.0.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`, `Backend/Reference/`에 공부 세션 및 시나리오 이벤트 계약을 반영한다.
 
 **체크포인트**: 사용자 스토리 2가 완전히 동작하고, 문서화되며, 준비된 계정/교수 데이터 기준으로 독립 테스트 가능하다.
 
@@ -153,7 +153,7 @@
 
 #### 작업 3.3: 사용자 스토리 3 계약 동기화
 
-- [ ] T045 [US3] `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`에 최종 결과 계약을 반영한다.
+- [ ] T045 [US3] `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`, `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`, `Backend/Reference/`에 최종 결과 계약을 반영한다.
 
 **체크포인트**: 사용자 스토리 3이 동작하고, 문서화되며, 준비된 호감도 데이터 기준으로 독립 테스트 가능하다.
 
@@ -165,10 +165,10 @@
 
 #### 작업 3.4: 콘텐츠, CI, 릴리즈 안정화
 
-- [ ] T046 [P] `Backend/src/main/resources/seed/dialogues/default-dialogues.json`, `Backend/src/main/resources/seed/events/default-events.json`, `Backend/src/main/resources/seed/characters/default-character-assets.json`에 백엔드 시드 콘텐츠와 기본 캐릭터 에셋 매니페스트 파일을 추가한다.
+- [ ] T046 [P] `Backend/Reference/`, `Backend/src/main/resources/seed/dialogues/default-dialogues.json`, `Backend/src/main/resources/seed/events/default-events.json`, `Backend/src/main/resources/seed/characters/default-character-assets.json`에 레퍼런스 원문과 백엔드 시드 콘텐츠, 기본 캐릭터 에셋 매니페스트를 정리한다.
 - [ ] T047 [P] `specs/001-backend-mvp/quickstart.md`와 `Docs/BE-comment-v1.0.md`에 백엔드 스모크 테스트, `nanobanana` 검증, 대체 에셋 확인 명령을 정리한다.
 - [ ] T048 `.github/workflows/backend-ci.yml`와 `Backend/build.gradle.kts`에서 백엔드 테스트/빌드 파이프라인을 강화한다.
-- [ ] T049 `Docs/developer-spec-v0.1.md`와 `.github/pull_request_template.md`에 브랜치별 백엔드 전달 규칙 준수 여부를 점검한다.
+- [ ] T049 `Docs/developer-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`, `.github/pull_request_template.md`에 브랜치별 백엔드 전달 규칙과 콘텐츠 동기화 규칙 준수 여부를 점검한다.
 
 ---
 
@@ -238,3 +238,4 @@
 - 각 사용자 스토리는 준비된 선행조건 위에서 독립적으로 검증 가능해야 한다.
 - 백엔드 전용 범위는 의도된 것이며, 프론트엔드 통합은 버전 계약 문서로 처리한다.
 - 계약 변경이 생기면 `Docs/api-spec-v0.1.md`와 `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`을 함께 갱신해야 한다.
+- 시나리오 구조, 대사 포맷, 호감도 구간이 바뀌면 `Docs/dialogue-content-spec-v0.1.md`와 `Backend/Reference/`도 같은 변경 세트에서 함께 갱신해야 한다.

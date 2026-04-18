@@ -22,8 +22,8 @@ export NANOBANANA_API_KEY=change-me
 
 ## 3. 구현 시작 순서
 
-1. `Docs/api-spec-v0.1.md`와 `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`
-   기준으로 계약을 다시 확인한다.
+1. `Docs/api-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`,
+   `specs/001-backend-mvp/contracts/backend-api.openapi.yaml` 기준으로 계약을 다시 확인한다.
 2. 구현 전에 실패하는 테스트를 먼저 만든다.
 3. `Backend/` 아래에 모듈 골격을 만든다.
 4. 계정/교수(캐릭터 에셋 생성 포함) -> 공부 세션 -> 이벤트/결과 순서로 도메인을 확장한다.
@@ -120,3 +120,4 @@ cd Backend
 - 프론트엔드 요구가 계약과 다르면 구현 전에 `Docs/FE-comment-v1.0.md`에 기록한다.
 - 백엔드에서 먼저 발견한 계약 이슈는 `Docs/BE-comment-v1.0.md`에 기록한다.
 - 계약 변경은 `Docs/api-spec-v0.1.md`와 OpenAPI 계약을 함께 갱신한다.
+- 시나리오 구조, 대사 포맷, 호감도 구간이 바뀌면 `Docs/dialogue-content-spec-v0.1.md`와 `Backend/Reference/`도 함께 갱신한다.

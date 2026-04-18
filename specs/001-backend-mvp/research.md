@@ -70,9 +70,12 @@
 ## 결정 7: 계약 문서는 OpenAPI와 버전 문서를 함께 유지한다
 
 - **결정**: 구현 전용 계약은 `specs/001-backend-mvp/contracts/backend-api.openapi.yaml`
-  로 관리하고, 팀 공용 기준은 `Docs/api-spec-v0.1.md`를 유지한다.
+  로 관리하고, 팀 공용 기준은 `Docs/api-spec-v0.1.md`를 유지한다. 대사와 시나리오
+  구조 기준은 `Docs/dialogue-content-spec-v0.1.md`와 `Backend/Reference/`
+  원문 문서를 함께 유지한다.
 - **근거**: OpenAPI는 테스트와 서버 구현에 직접 쓰기 좋고, 버전 문서는 FE/BE
-  소통과 PR 리뷰에서 읽기 쉽다.
+  소통과 PR 리뷰에서 읽기 쉽다. 시나리오 원문과 렌더 규칙은 별도 기준 문서가 있어야
+  콘텐츠 변경이 API 계약과 분리되지 않는다.
 - **검토한 대안**:
   - Docs Markdown만 유지: 자동화와 계약 테스트 활용성이 떨어짐
   - OpenAPI만 유지: 비개발 이해관계자와 FE 협업 시 가독성이 떨어질 수 있음

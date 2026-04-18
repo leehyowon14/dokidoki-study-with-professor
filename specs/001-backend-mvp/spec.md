@@ -170,8 +170,8 @@
 
 ## 문서 및 커뮤니케이션 영향 *(필수)*
 
-- **생성/갱신 문서**: `Docs/api-spec-v0.1.md`, `Docs/developer-spec-v0.1.md`,
-  `Docs/dialogue-content-spec-v0.1.md`, `Docs/BE-comment-v1.0.md`,
+- **생성/갱신 문서**: `Docs/product-plan-v1.0.md`, `Docs/api-spec-v0.1.md`,
+  `Docs/developer-spec-v0.1.md`, `Docs/dialogue-content-spec-v0.1.md`, `Docs/BE-comment-v1.0.md`,
   `Backend/Reference/` 관련 시나리오 원문
 - **API / 계약 변경점**: 현재 `Docs/api-spec-v0.1.md`의 인증, 교수, 공부 세션,
   이벤트, 최종 결과 계약을 백엔드 구현 기준으로 고정한다. 특히 교수 등록/조회 계약은
