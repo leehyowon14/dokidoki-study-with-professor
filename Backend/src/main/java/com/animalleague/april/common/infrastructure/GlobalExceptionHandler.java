@@ -14,10 +14,14 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.animalleague.april.common.api.ErrorResponse;
@@ -106,6 +110,28 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler({
+        NoResourceFoundException.class,
+        HttpRequestMethodNotSupportedException.class,
+        HttpMediaTypeNotSupportedException.class,
+        HttpMediaTypeNotAcceptableException.class
+    })
+    public ResponseEntity<ErrorResponse> handleSpringWebException(
+        Exception exception,
+        HttpServletRequest request
+    ) {
+        HttpStatusCode statusCode = resolveFrameworkStatusCode(exception);
+
+        return ResponseEntity.status(statusCode).body(
+            ErrorResponse.of(
+                statusCode,
+                resolveFrameworkErrorCode(exception),
+                resolveFrameworkMessage(exception),
+                request.getRequestURI()
+            )
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedException(
         Exception exception,
@@ -159,5 +185,65 @@ public class GlobalExceptionHandler {
         }
 
         return "잘못된 요청입니다.";
+    }
+
+    private HttpStatusCode resolveFrameworkStatusCode(Exception exception) {
+        if (exception instanceof NoResourceFoundException noResourceFoundException) {
+            return noResourceFoundException.getStatusCode();
+        }
+
+        if (exception instanceof HttpRequestMethodNotSupportedException methodNotSupportedException) {
+            return methodNotSupportedException.getStatusCode();
+        }
+
+        if (exception instanceof HttpMediaTypeNotSupportedException mediaTypeNotSupportedException) {
+            return mediaTypeNotSupportedException.getStatusCode();
+        }
+
+        if (exception instanceof HttpMediaTypeNotAcceptableException mediaTypeNotAcceptableException) {
+            return mediaTypeNotAcceptableException.getStatusCode();
+        }
+
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    private String resolveFrameworkErrorCode(Exception exception) {
+        if (exception instanceof NoResourceFoundException) {
+            return "NOT_FOUND";
+        }
+
+        if (exception instanceof HttpRequestMethodNotSupportedException) {
+            return "METHOD_NOT_ALLOWED";
+        }
+
+        if (exception instanceof HttpMediaTypeNotSupportedException) {
+            return "UNSUPPORTED_MEDIA_TYPE";
+        }
+
+        if (exception instanceof HttpMediaTypeNotAcceptableException) {
+            return "NOT_ACCEPTABLE";
+        }
+
+        return "FRAMEWORK_ERROR";
+    }
+
+    private String resolveFrameworkMessage(Exception exception) {
+        if (exception instanceof NoResourceFoundException) {
+            return "요청한 리소스를 찾을 수 없습니다.";
+        }
+
+        if (exception instanceof HttpRequestMethodNotSupportedException) {
+            return "허용되지 않은 HTTP 메서드입니다.";
+        }
+
+        if (exception instanceof HttpMediaTypeNotSupportedException) {
+            return "지원하지 않는 Content-Type 입니다.";
+        }
+
+        if (exception instanceof HttpMediaTypeNotAcceptableException) {
+            return "응답 가능한 미디어 타입이 없습니다.";
+        }
+
+        return "요청 처리에 실패했습니다.";
     }
 }
