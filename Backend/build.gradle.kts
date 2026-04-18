@@ -77,6 +77,16 @@ val integrationTest = registerSuiteTask(
     descriptionText = "통합 테스트만 실행한다."
 )
 
+integrationTest.configure {
+    doFirst {
+        if (providers.environmentVariable("CI").orNull == "true") {
+            providers.exec {
+                commandLine("docker", "info")
+            }.result.get()
+        }
+    }
+}
+
 val unitTest = registerSuiteTask(
     taskName = "unitTest",
     includePattern = "*Unit*",
