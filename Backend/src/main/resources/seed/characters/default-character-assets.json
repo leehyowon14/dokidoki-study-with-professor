@@ -1,0 +1,76 @@
+{
+  "personalities": [
+    {
+      "personalityType": "gentle",
+      "representativeVariantKey": "idle_neutral",
+      "assets": [
+        {
+          "variantKey": "idle_neutral",
+          "imageUrl": "https://cdn.example.com/assets/default/gentle/idle_neutral.png"
+        },
+        {
+          "variantKey": "idle_smile",
+          "imageUrl": "https://cdn.example.com/assets/default/gentle/idle_smile.png"
+        },
+        {
+          "variantKey": "study_focus",
+          "imageUrl": "https://cdn.example.com/assets/default/gentle/study_focus.png"
+        }
+      ]
+    },
+    {
+      "personalityType": "tsundere",
+      "representativeVariantKey": "idle_neutral",
+      "assets": [
+        {
+          "variantKey": "idle_neutral",
+          "imageUrl": "https://cdn.example.com/assets/default/tsundere/idle_neutral.png"
+        },
+        {
+          "variantKey": "idle_smile",
+          "imageUrl": "https://cdn.example.com/assets/default/tsundere/idle_smile.png"
+        },
+        {
+          "variantKey": "study_focus",
+          "imageUrl": "https://cdn.example.com/assets/default/tsundere/study_focus.png"
+        }
+      ]
+    },
+    {
+      "personalityType": "english_mix",
+      "representativeVariantKey": "idle_neutral",
+      "assets": [
+        {
+          "variantKey": "idle_neutral",
+          "imageUrl": "https://cdn.example.com/assets/default/english_mix/idle_neutral.png"
+        },
+        {
+          "variantKey": "idle_smile",
+          "imageUrl": "https://cdn.example.com/assets/default/english_mix/idle_smile.png"
+        },
+        {
+          "variantKey": "study_focus",
+          "imageUrl": "https://cdn.example.com/assets/default/english_mix/study_focus.png"
+        }
+      ]
+    },
+    {
+      "personalityType": "shy",
+      "representativeVariantKey": "idle_neutral",
+      "assets": [
+        {
+          "variantKey": "idle_neutral",
+          "imageUrl": "https://cdn.example.com/assets/default/shy/idle_neutral.png"
+        },
+        {
+          "variantKey": "idle_smile",
+          "imageUrl": "https://cdn.example.com/assets/default/shy/idle_smile.png"
+        },
+        {
+          "variantKey": "study_focus",
+          "imageUrl": "https://cdn.example.com/assets/default/shy/study_focus.png"
+        }
+      ]
+    }
+  ]
+}
