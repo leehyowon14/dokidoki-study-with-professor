@@ -94,6 +94,35 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
     }
 
     @Test
+    void createProfessorWithWhitespaceSourcePhotoBehavesAsNoPhoto() throws Exception {
+        UUID userId = userIdFor("alice");
+
+        mockMvc.perform(
+                post("/api/professors")
+                    .with(SecurityMockMvcRequestPostProcessors.user("alice"))
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "홍길동",
+                          "gender": "male",
+                          "personalityType": "gentle",
+                          "sourcePhotoUrl": "   "
+                        }
+                        """)
+            )
+            .andExpect(status().isCreated());
+
+        Professor professor = professorRepository.findAllByUserIdOrderByCreatedAtDesc(userId).getFirst();
+        assertThat(professor.getSourcePhotoUrl()).isNull();
+        assertThat(professor.getCharacterAssetStatus()).isEqualTo(CharacterAssetStatus.READY);
+        assertThat(professor.isDefaultCharacterAssets()).isTrue();
+
+        Affection affection = affectionRepository.findByProfessorIdAndUserId(professor.getId(), userId)
+            .orElseThrow();
+        assertThat(affection.getAffectionScore()).isZero();
+    }
+
+    @Test
     void professorListAndDetailAreScopedToAuthenticatedUser() throws Exception {
         Professor aliceProfessor = seedProfessor("alice", "알리스교수", Gender.MALE, PersonalityType.GENTLE, null);
         Professor bobProfessor = seedProfessor(
