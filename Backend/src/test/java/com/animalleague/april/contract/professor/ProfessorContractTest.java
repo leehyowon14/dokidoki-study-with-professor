@@ -179,6 +179,82 @@ class ProfessorContractTest extends ApiContractTest {
     }
 
     @Test
+    void blankProfessorNameReturns400() throws Exception {
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "",
+                          "gender": "male",
+                          "personalityType": "gentle",
+                          "sourcePhotoUrl": null
+                        }
+                        """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations[0].field").value("professorName"));
+    }
+
+    @Test
+    void blankGenderReturns400() throws Exception {
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "홍길동",
+                          "gender": "",
+                          "personalityType": "gentle",
+                          "sourcePhotoUrl": null
+                        }
+                        """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations[0].field").value("gender"));
+    }
+
+    @Test
+    void blankPersonalityTypeReturns400() throws Exception {
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "홍길동",
+                          "gender": "male",
+                          "personalityType": "",
+                          "sourcePhotoUrl": null
+                        }
+                        """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations[0].field").value("personalityType"));
+    }
+
+    @Test
+    void invalidPersonalityTypeReturns400() throws Exception {
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "홍길동",
+                          "gender": "male",
+                          "personalityType": "invalid-type",
+                          "sourcePhotoUrl": null
+                        }
+                        """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations[0].field").value("personalityType"));
+    }
+
+    @Test
     void tooLongProfessorNameReturns400() throws Exception {
         mockMvc.perform(
                 post("/api/professors")
