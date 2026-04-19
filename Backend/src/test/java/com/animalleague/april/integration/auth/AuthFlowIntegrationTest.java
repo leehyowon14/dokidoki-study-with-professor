@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,6 +27,7 @@ import com.animalleague.april.integration.support.PostgresIntegrationTest;
 
 @AutoConfigureMockMvc
 @TestPropertySource(properties = "spring.flyway.enabled=true")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class AuthFlowIntegrationTest extends PostgresIntegrationTest {
 
