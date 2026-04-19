@@ -138,7 +138,10 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.professors[0].professorName").value("알리스교수"));
+            .andExpect(jsonPath("$.professors", Matchers.hasSize(1)))
+            .andExpect(jsonPath("$.professors[0].professorName").value("알리스교수"))
+            .andExpect(jsonPath("$.professors[*].id", Matchers.not(Matchers.hasItem(bobProfessor.getId().toString()))))
+            .andExpect(jsonPath("$.professors[*].professorName", Matchers.not(Matchers.hasItem("밥교수"))));
 
         mockMvc.perform(
                 get("/api/professors/{professorId}", aliceProfessor.getId())
