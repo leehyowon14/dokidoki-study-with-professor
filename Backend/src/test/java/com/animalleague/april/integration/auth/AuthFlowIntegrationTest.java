@@ -1,14 +1,18 @@
 package com.animalleague.april.integration.auth;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,11 +25,8 @@ import com.animalleague.april.integration.support.PostgresIntegrationTest;
 
 @AutoConfigureMockMvc
 @TestPropertySource(properties = "spring.flyway.enabled=true")
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class AuthFlowIntegrationTest extends PostgresIntegrationTest {
-
-    private static final String SIGNUP_LOGIN_ID = "hong1234";
-    private static final String DUPLICATE_LOGIN_ID = "hong1235";
-    private static final String WRONG_PASSWORD_LOGIN_ID = "hong1236";
 
     @Autowired
     private MockMvc mockMvc;
@@ -33,8 +34,15 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @BeforeEach
+    void clearUsers() {
+        userRepository.deleteAllInBatch();
+    }
+
     @Test
     void signupThenLoginReturnsUserAndNullActiveSession() throws Exception {
+        String loginId = newLoginId("signup");
+
         mockMvc.perform(
                 post("/api/auth/signup")
                     .contentType("application/json")
@@ -45,16 +53,16 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "password": "password123",
                           "examEndDate": "2026-06-20"
                         }
-                        """.formatted(SIGNUP_LOGIN_ID))
+                        """.formatted(loginId))
             )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.user.name").value("홍길동"))
-            .andExpect(jsonPath("$.user.loginId").value(SIGNUP_LOGIN_ID))
+            .andExpect(jsonPath("$.user.loginId").value(loginId))
             .andExpect(jsonPath("$.user.examEndDate").value("2026-06-20"));
 
-        User persistedUser = userRepository.findByLoginId(SIGNUP_LOGIN_ID).orElseThrow();
+        User persistedUser = userRepository.findByLoginId(loginId).orElseThrow();
         assertThat(persistedUser.getId()).isNotNull();
-        assertThat(persistedUser.getLoginId()).isEqualTo(SIGNUP_LOGIN_ID);
+        assertThat(persistedUser.getLoginId()).isEqualTo(loginId);
         assertThat(persistedUser.getName()).isEqualTo("홍길동");
         assertThat(persistedUser.getExamEndDate()).isEqualTo(LocalDate.parse("2026-06-20"));
         assertThat(persistedUser.getPasswordHash()).isNotEqualTo("password123");
@@ -69,11 +77,11 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "loginId": "%s",
                           "password": "password123"
                         }
-                        """.formatted(SIGNUP_LOGIN_ID))
+                        """.formatted(loginId))
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.user.name").value("홍길동"))
-            .andExpect(jsonPath("$.user.loginId").value(SIGNUP_LOGIN_ID))
+            .andExpect(jsonPath("$.user.loginId").value(loginId))
             .andExpect(jsonPath("$.activeSession").value(Matchers.nullValue()))
             .andReturn();
 
@@ -82,6 +90,8 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
 
     @Test
     void duplicateLoginIdReturns409() throws Exception {
+        String loginId = newLoginId("dup");
+
         mockMvc.perform(
                 post("/api/auth/signup")
                     .contentType("application/json")
@@ -92,7 +102,7 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "password": "password123",
                           "examEndDate": "2026-06-20"
                         }
-                        """.formatted(DUPLICATE_LOGIN_ID))
+                        """.formatted(loginId))
             )
             .andExpect(status().isCreated());
 
@@ -106,7 +116,7 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "password": "password123",
                           "examEndDate": "2026-06-20"
                         }
-                        """.formatted(DUPLICATE_LOGIN_ID))
+                        """.formatted(loginId))
             )
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_LOGIN_ID"));
@@ -114,6 +124,8 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
 
     @Test
     void wrongPasswordReturns401() throws Exception {
+        String loginId = newLoginId("wrong");
+
         mockMvc.perform(
                 post("/api/auth/signup")
                     .contentType("application/json")
@@ -124,7 +136,7 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "password": "password123",
                           "examEndDate": "2026-06-20"
                         }
-                        """.formatted(WRONG_PASSWORD_LOGIN_ID))
+                        """.formatted(loginId))
             )
             .andExpect(status().isCreated());
 
@@ -136,9 +148,29 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "loginId": "%s",
                           "password": "wrongpass123"
                         }
-                        """.formatted(WRONG_PASSWORD_LOGIN_ID))
+                        """.formatted(loginId))
             )
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    void loginWithUnknownUserReturns401() throws Exception {
+        mockMvc.perform(
+                post("/api/auth/login")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "loginId": "%s",
+                          "password": "password123"
+                        }
+                        """.formatted(newLoginId("ghost")))
+            )
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    private String newLoginId(String prefix) {
+        return prefix + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     }
 }

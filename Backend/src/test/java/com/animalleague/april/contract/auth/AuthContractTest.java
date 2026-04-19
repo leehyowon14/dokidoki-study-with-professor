@@ -2,6 +2,7 @@ package com.animalleague.april.contract.auth;
 
 import java.time.LocalDate;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -84,5 +85,23 @@ class AuthContractTest extends ApiContractTest {
             )
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    void loginValidationFailureReturns400() throws Exception {
+        mockMvc.perform(
+                post("/api/auth/login")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "loginId": "",
+                          "password": "1234"
+                        }
+                        """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations").isArray())
+            .andExpect(jsonPath("$.violations[*].field", Matchers.hasItems("loginId", "password")));
     }
 }

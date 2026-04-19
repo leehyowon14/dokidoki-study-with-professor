@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.animalleague.april.auth.application.SignupPolicy;
@@ -21,6 +22,13 @@ class SignupPolicyUnitTest {
     void setUp() {
         Clock fixedClock = Clock.fixed(Instant.parse("2026-05-01T00:00:00Z"), ZoneOffset.UTC);
         signupPolicy = new SignupPolicy(fixedClock);
+    }
+
+    @Test
+    void validSignupDoesNotThrowException() {
+        assertThatCode(
+            () -> signupPolicy.validate("홍길동", "hong1234", "password123", LocalDate.parse("2026-06-20"))
+        ).doesNotThrowAnyException();
     }
 
     @Test
