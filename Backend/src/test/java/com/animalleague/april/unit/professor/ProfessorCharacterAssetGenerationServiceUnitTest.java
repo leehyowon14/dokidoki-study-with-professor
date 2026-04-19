@@ -8,6 +8,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionOperations;
 
 import com.animalleague.april.common.domain.CharacterAssetStatus;
 import com.animalleague.april.common.domain.PersonalityType;
@@ -34,6 +37,12 @@ class ProfessorCharacterAssetGenerationServiceUnitTest {
         mock(DefaultCharacterAssetCatalog.class);
     private final NanobananaClient nanobananaClient = mock(NanobananaClient.class);
     private final ProfessorImageStorage professorImageStorage = mock(ProfessorImageStorage.class);
+    private final TransactionOperations transactionOperations = new TransactionOperations() {
+        @Override
+        public <T> T execute(TransactionCallback<T> action) {
+            return action.doInTransaction(new SimpleTransactionStatus());
+        }
+    };
 
     private ProfessorCharacterAssetGenerationService service;
 
@@ -43,7 +52,8 @@ class ProfessorCharacterAssetGenerationServiceUnitTest {
             professorCharacterAssetRepository,
             defaultCharacterAssetCatalog,
             nanobananaClient,
-            professorImageStorage
+            professorImageStorage,
+            transactionOperations
         );
     }
 
@@ -65,6 +75,7 @@ class ProfessorCharacterAssetGenerationServiceUnitTest {
         ArgumentCaptor<NanobananaClient.CharacterAssetGenerationRequest> requestCaptor =
             ArgumentCaptor.forClass(NanobananaClient.CharacterAssetGenerationRequest.class);
         verify(nanobananaClient).requestCharacterAssetGeneration(requestCaptor.capture());
+        verify(professorCharacterAssetRepository).deleteAllByProfessorId(professorId);
         verify(professorCharacterAssetRepository, never()).saveAll(any());
 
         assertThat(requestCaptor.getValue().professorId()).isEqualTo(professorId);
@@ -75,6 +86,36 @@ class ProfessorCharacterAssetGenerationServiceUnitTest {
         assertThat(result.representativeAssetUrl()).isNull();
         assertThat(result.defaultCharacterAssets()).isFalse();
         assertThat(result.characterAssets()).isEmpty();
+    }
+
+    @Test
+    void sourcePhotoGenerationRequestFailureFallsBackToDefaultAssets() {
+        UUID professorId = UUID.randomUUID();
+        DefaultCharacterAssetCatalog.DefaultCharacterAssetSet gentleAssetSet = gentleAssetSet();
+        AtomicReference<List<ProfessorCharacterAsset>> savedAssets = new AtomicReference<>();
+        given(defaultCharacterAssetCatalog.getAssetSet(PersonalityType.GENTLE)).willReturn(gentleAssetSet);
+        given(nanobananaClient.requestCharacterAssetGeneration(any()))
+            .willThrow(new IllegalStateException("nanobanana timeout"));
+        given(professorCharacterAssetRepository.saveAll(any())).willAnswer(invocation -> {
+            List<ProfessorCharacterAsset> assets = invocation.getArgument(0);
+            savedAssets.set(assets);
+            return assets;
+        });
+
+        ProfessorCharacterAssetGenerationService.ProfessorCharacterAssetGenerationResult result =
+            service.initializeAssets(
+                professorId,
+                PersonalityType.GENTLE,
+                "https://cdn.example.com/source/professor.png"
+            );
+
+        assertThat(savedAssets.get())
+            .extracting(ProfessorCharacterAsset::isDefaultAsset)
+            .containsOnly(true);
+        assertThat(result.characterAssetStatus()).isEqualTo(CharacterAssetStatus.READY);
+        assertThat(result.defaultCharacterAssets()).isTrue();
+        assertThat(result.representativeAssetUrl())
+            .isEqualTo("https://cdn.example.com/assets/default/gentle/idle_neutral.png");
     }
 
     @Test

@@ -8,7 +8,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionOperations;
 
 import com.animalleague.april.common.domain.CharacterAssetStatus;
 import com.animalleague.april.common.domain.PersonalityType;
@@ -20,6 +24,7 @@ import com.animalleague.april.professor.infrastructure.ProfessorCharacterAssetRe
 import com.animalleague.april.professor.infrastructure.ProfessorImageStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 class ProfessorCharacterAssetGenerationIntegrationTest extends PostgresIntegrationTest {
@@ -29,6 +34,9 @@ class ProfessorCharacterAssetGenerationIntegrationTest extends PostgresIntegrati
 
     @Autowired
     private DefaultCharacterAssetCatalog defaultCharacterAssetCatalog;
+
+    @Autowired
+    private TransactionOperations transactionOperations;
 
     private RecordingNanobananaClient nanobananaClient;
     private DeterministicProfessorImageStorage professorImageStorage;
@@ -42,7 +50,8 @@ class ProfessorCharacterAssetGenerationIntegrationTest extends PostgresIntegrati
             professorCharacterAssetRepository,
             defaultCharacterAssetCatalog,
             nanobananaClient,
-            professorImageStorage
+            professorImageStorage,
+            transactionOperations
         );
     }
 
@@ -118,14 +127,76 @@ class ProfessorCharacterAssetGenerationIntegrationTest extends PostgresIntegrati
             .allMatch(asset -> asset.isDefaultAsset());
     }
 
+    @Test
+    void sourcePhotoRequestFailureFallsBackToDefaultAssets() {
+        UUID professorId = UUID.randomUUID();
+        nanobananaClient.failNextRequest();
+
+        ProfessorCharacterAssetGenerationService.ProfessorCharacterAssetGenerationResult result =
+            service.initializeAssets(
+                professorId,
+                PersonalityType.GENTLE,
+                "https://cdn.example.com/source/professor.png"
+            );
+
+        assertThat(result.characterAssetStatus()).isEqualTo(CharacterAssetStatus.READY);
+        assertThat(result.defaultCharacterAssets()).isTrue();
+        assertThat(result.representativeAssetUrl())
+            .isEqualTo("https://cdn.example.com/assets/default/gentle/idle_neutral.png");
+        assertThat(professorCharacterAssetRepository.findAllByProfessorIdOrderByVariantKey(professorId))
+            .hasSize(3)
+            .allMatch(asset -> asset.isDefaultAsset());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void failedAssetReplacementRollsBackDeleteAndKeepsExistingAssets() {
+        UUID professorId = UUID.randomUUID();
+        service.fallbackToDefaultAssets(professorId, PersonalityType.GENTLE);
+
+        assertThatThrownBy(() -> service.completeGeneration(
+            professorId,
+            PersonalityType.GENTLE,
+            List.of(
+                new ProfessorCharacterAssetGenerationService.GeneratedCharacterAssetPayload(
+                    "idle_smile",
+                    "first".getBytes(StandardCharsets.UTF_8),
+                    "image/png"
+                ),
+                new ProfessorCharacterAssetGenerationService.GeneratedCharacterAssetPayload(
+                    "idle_smile",
+                    "second".getBytes(StandardCharsets.UTF_8),
+                    "image/png"
+                )
+            )
+        )).isInstanceOf(DataAccessException.class);
+
+        assertThat(professorCharacterAssetRepository.findAllByProfessorIdOrderByVariantKey(professorId))
+            .extracting(asset -> asset.getVariantKey() + ":" + asset.getImageUrl())
+            .containsExactly(
+                "idle_neutral:https://cdn.example.com/assets/default/gentle/idle_neutral.png",
+                "idle_smile:https://cdn.example.com/assets/default/gentle/idle_smile.png",
+                "study_focus:https://cdn.example.com/assets/default/gentle/study_focus.png"
+            );
+    }
+
     private static final class RecordingNanobananaClient implements NanobananaClient {
 
         private final List<CharacterAssetGenerationRequest> requests = new ArrayList<>();
+        private boolean failNextRequest;
 
         @Override
         public GenerationTicket requestCharacterAssetGeneration(CharacterAssetGenerationRequest request) {
+            if (failNextRequest) {
+                failNextRequest = false;
+                throw new IllegalStateException("nanobanana unavailable");
+            }
             requests.add(request);
             return new GenerationTicket("ticket-" + requests.size());
+        }
+
+        private void failNextRequest() {
+            this.failNextRequest = true;
         }
     }
 

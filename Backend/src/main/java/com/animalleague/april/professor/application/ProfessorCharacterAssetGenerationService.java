@@ -3,9 +3,11 @@ package com.animalleague.april.professor.application;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.lang.Nullable;
+import org.springframework.transaction.support.TransactionOperations;
 
 import com.animalleague.april.common.domain.CharacterAssetStatus;
 import com.animalleague.april.common.domain.PersonalityType;
@@ -20,17 +22,20 @@ public class ProfessorCharacterAssetGenerationService {
     private final DefaultCharacterAssetCatalog defaultCharacterAssetCatalog;
     private final NanobananaClient nanobananaClient;
     private final ProfessorImageStorage professorImageStorage;
+    private final TransactionOperations transactionOperations;
 
     public ProfessorCharacterAssetGenerationService(
         ProfessorCharacterAssetRepository professorCharacterAssetRepository,
         DefaultCharacterAssetCatalog defaultCharacterAssetCatalog,
         NanobananaClient nanobananaClient,
-        ProfessorImageStorage professorImageStorage
+        ProfessorImageStorage professorImageStorage,
+        TransactionOperations transactionOperations
     ) {
         this.professorCharacterAssetRepository = professorCharacterAssetRepository;
         this.defaultCharacterAssetCatalog = defaultCharacterAssetCatalog;
         this.nanobananaClient = nanobananaClient;
         this.professorImageStorage = professorImageStorage;
+        this.transactionOperations = transactionOperations;
     }
 
     public ProfessorCharacterAssetGenerationResult initializeAssets(
@@ -38,8 +43,6 @@ public class ProfessorCharacterAssetGenerationService {
         PersonalityType personalityType,
         @Nullable String sourcePhotoUrl
     ) {
-        professorCharacterAssetRepository.deleteAllByProfessorId(professorId);
-
         if (sourcePhotoUrl == null || sourcePhotoUrl.isBlank()) {
             return fallbackToDefaultAssets(professorId, personalityType);
         }
@@ -47,14 +50,20 @@ public class ProfessorCharacterAssetGenerationService {
         DefaultCharacterAssetCatalog.DefaultCharacterAssetSet defaultAssetSet =
             defaultCharacterAssetCatalog.getAssetSet(personalityType);
 
-        nanobananaClient.requestCharacterAssetGeneration(
-            new NanobananaClient.CharacterAssetGenerationRequest(
-                professorId,
-                personalityType,
-                sourcePhotoUrl,
-                defaultAssetSet.variantKeys()
-            )
-        );
+        try {
+            nanobananaClient.requestCharacterAssetGeneration(
+                new NanobananaClient.CharacterAssetGenerationRequest(
+                    professorId,
+                    personalityType,
+                    sourcePhotoUrl,
+                    defaultAssetSet.variantKeys()
+                )
+            );
+        } catch (RuntimeException exception) {
+            return fallbackToDefaultAssets(professorId, personalityType);
+        }
+
+        professorCharacterAssetRepository.deleteAllByProfessorId(professorId);
 
         return ProfessorCharacterAssetGenerationResult.pending();
     }
@@ -86,8 +95,7 @@ public class ProfessorCharacterAssetGenerationService {
             ))
             .toList();
 
-        professorCharacterAssetRepository.deleteAllByProfessorId(professorId);
-        List<ProfessorCharacterAsset> persistedAssets = professorCharacterAssetRepository.saveAll(assetsToPersist);
+        List<ProfessorCharacterAsset> persistedAssets = replaceAssets(professorId, assetsToPersist);
         return readyFromAssets(defaultAssetSet.representativeVariantKey(), false, persistedAssets);
     }
 
@@ -102,9 +110,21 @@ public class ProfessorCharacterAssetGenerationService {
             .map(asset -> ProfessorCharacterAsset.defaultAsset(professorId, asset.variantKey(), asset.imageUrl()))
             .toList();
 
-        professorCharacterAssetRepository.deleteAllByProfessorId(professorId);
-        List<ProfessorCharacterAsset> persistedAssets = professorCharacterAssetRepository.saveAll(fallbackAssets);
+        List<ProfessorCharacterAsset> persistedAssets = replaceAssets(professorId, fallbackAssets);
         return readyFromAssets(defaultAssetSet.representativeVariantKey(), true, persistedAssets);
+    }
+
+    private List<ProfessorCharacterAsset> replaceAssets(
+        UUID professorId,
+        List<ProfessorCharacterAsset> assetsToPersist
+    ) {
+        return Objects.requireNonNull(
+            transactionOperations.execute(status -> {
+                professorCharacterAssetRepository.deleteAllByProfessorId(professorId);
+                return professorCharacterAssetRepository.saveAll(assetsToPersist);
+            }),
+            "Professor character asset replacement transaction must return persisted assets."
+        );
     }
 
     private Comparator<GeneratedCharacterAssetPayload> assetComparator(Map<String, Integer> variantOrder) {
