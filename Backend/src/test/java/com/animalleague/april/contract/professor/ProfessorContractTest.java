@@ -109,6 +109,40 @@ class ProfessorContractTest extends ApiContractTest {
     }
 
     @Test
+    void createProfessorWithBlankSourcePhotoUrlReturnsReadyProfessorEnvelope() throws Exception {
+        ProfessorResponse professor = new ProfessorResponse(
+            UUID.fromString("33333333-3333-3333-3333-333333333333"),
+            "김교수",
+            Gender.FEMALE,
+            PersonalityType.SHY,
+            null,
+            CharacterAssetStatus.READY,
+            null,
+            true
+        );
+        given(professorService.createProfessor(any(ProfessorCreateRequest.class)))
+            .willReturn(new ProfessorCreateResponse(professor));
+
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "김교수",
+                          "gender": "female",
+                          "personalityType": "shy",
+                          "sourcePhotoUrl": "   "
+                        }
+                        """)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.professor.id").value("33333333-3333-3333-3333-333333333333"))
+            .andExpect(jsonPath("$.professor.sourcePhotoUrl").value(org.hamcrest.Matchers.nullValue()))
+            .andExpect(jsonPath("$.professor.characterAssetStatus").value("ready"))
+            .andExpect(jsonPath("$.professor.isDefaultCharacterAssets").value(true));
+    }
+
+    @Test
     void listProfessorsReturnsProfessorArray() throws Exception {
         ProfessorResponse professor = new ProfessorResponse(
             UUID.fromString("11111111-1111-1111-1111-111111111111"),
