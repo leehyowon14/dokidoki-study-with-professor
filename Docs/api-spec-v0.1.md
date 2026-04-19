@@ -46,9 +46,9 @@ API 명세 v0.1
 
 요청 필드:
 
-- `name`
-- `loginId`
-- `password`
+- `name`: 비어 있을 수 없고 100자 이하여야 한다.
+- `loginId`: 영문/숫자만 사용 가능하며 4자 이상 50자 이하여야 한다.
+- `password`: 8자 이상이어야 한다.
 - `examEndDate`
 
 응답 필드:
@@ -62,8 +62,8 @@ API 명세 v0.1
 
 요청 필드:
 
-- `loginId`
-- `password`
+- `loginId`: 영문/숫자만 사용 가능하며 4자 이상이어야 한다.
+- `password`: 8자 이상이어야 한다.
 
 응답 필드:
 
