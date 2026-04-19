@@ -26,6 +26,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.animalleague.april.common.api.ApiException;
 import com.animalleague.april.common.api.ErrorResponse;
 import com.animalleague.april.common.api.ErrorResponse.FieldViolation;
 
@@ -78,6 +79,21 @@ public class GlobalExceptionHandler {
                 "요청 파라미터 검증에 실패했습니다.",
                 request.getRequestURI()
             ).withViolations(violations)
+        );
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(
+        ApiException exception,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.status(exception.getStatusCode()).body(
+            ErrorResponse.of(
+                exception.getStatusCode(),
+                exception.getCode(),
+                exception.getMessage(),
+                request.getRequestURI()
+            )
         );
     }
 
