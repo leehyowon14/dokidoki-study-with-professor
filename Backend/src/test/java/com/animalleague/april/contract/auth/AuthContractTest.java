@@ -47,6 +47,26 @@ class AuthContractTest extends ApiContractTest {
     }
 
     @Test
+    void signupLengthValidationFailureReturns400() throws Exception {
+        SignupRequest request = new SignupRequest(
+            "가".repeat(101),
+            "a".repeat(51),
+            "password123",
+            LocalDate.now().plusDays(30)
+        );
+
+        mockMvc.perform(
+                post("/api/auth/signup")
+                    .contentType("application/json")
+                    .content(json(request))
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations").isArray())
+            .andExpect(jsonPath("$.violations[*].field", Matchers.hasItems("name", "loginId")));
+    }
+
+    @Test
     void duplicateLoginIdReturns409() throws Exception {
         given(authService.signup(anyString(), anyString(), anyString(), any(LocalDate.class)))
             .willThrow(new ApiException(HttpStatus.CONFLICT, "DUPLICATE_LOGIN_ID", "이미 사용 중인 로그인 ID입니다."));

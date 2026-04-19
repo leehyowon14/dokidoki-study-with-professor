@@ -1,6 +1,7 @@
 package com.animalleague.april.integration.auth;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.hamcrest.Matchers;
@@ -42,6 +43,7 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
     @Test
     void signupThenLoginReturnsUserAndNullActiveSession() throws Exception {
         String loginId = newLoginId("signup");
+        String examEndDate = futureExamEndDate();
 
         mockMvc.perform(
                 post("/api/auth/signup")
@@ -51,20 +53,20 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "name": "홍길동",
                           "loginId": "%s",
                           "password": "password123",
-                          "examEndDate": "2026-06-20"
+                          "examEndDate": "%s"
                         }
-                        """.formatted(loginId))
+                        """.formatted(loginId, examEndDate))
             )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.user.name").value("홍길동"))
             .andExpect(jsonPath("$.user.loginId").value(loginId))
-            .andExpect(jsonPath("$.user.examEndDate").value("2026-06-20"));
+            .andExpect(jsonPath("$.user.examEndDate").value(examEndDate));
 
         User persistedUser = userRepository.findByLoginId(loginId).orElseThrow();
         assertThat(persistedUser.getId()).isNotNull();
         assertThat(persistedUser.getLoginId()).isEqualTo(loginId);
         assertThat(persistedUser.getName()).isEqualTo("홍길동");
-        assertThat(persistedUser.getExamEndDate()).isEqualTo(LocalDate.parse("2026-06-20"));
+        assertThat(persistedUser.getExamEndDate()).isEqualTo(LocalDate.parse(examEndDate));
         assertThat(persistedUser.getPasswordHash()).isNotEqualTo("password123");
         assertThat(persistedUser.getCreatedAt()).isNotNull();
         assertThat(persistedUser.getUpdatedAt()).isNotNull();
@@ -91,6 +93,7 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
     @Test
     void duplicateLoginIdReturns409() throws Exception {
         String loginId = newLoginId("dup");
+        String examEndDate = futureExamEndDate();
 
         mockMvc.perform(
                 post("/api/auth/signup")
@@ -100,9 +103,9 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "name": "홍길동",
                           "loginId": "%s",
                           "password": "password123",
-                          "examEndDate": "2026-06-20"
+                          "examEndDate": "%s"
                         }
-                        """.formatted(loginId))
+                        """.formatted(loginId, examEndDate))
             )
             .andExpect(status().isCreated());
 
@@ -114,9 +117,9 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "name": "임꺽정",
                           "loginId": "%s",
                           "password": "password123",
-                          "examEndDate": "2026-06-20"
+                          "examEndDate": "%s"
                         }
-                        """.formatted(loginId))
+                        """.formatted(loginId, examEndDate))
             )
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_LOGIN_ID"));
@@ -125,6 +128,7 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
     @Test
     void wrongPasswordReturns401() throws Exception {
         String loginId = newLoginId("wrong");
+        String examEndDate = futureExamEndDate();
 
         mockMvc.perform(
                 post("/api/auth/signup")
@@ -134,9 +138,9 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                           "name": "홍길동",
                           "loginId": "%s",
                           "password": "password123",
-                          "examEndDate": "2026-06-20"
+                          "examEndDate": "%s"
                         }
-                        """.formatted(loginId))
+                        """.formatted(loginId, examEndDate))
             )
             .andExpect(status().isCreated());
 
@@ -172,5 +176,9 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
 
     private String newLoginId(String prefix) {
         return prefix + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+    }
+
+    private String futureExamEndDate() {
+        return LocalDate.now(ZoneOffset.UTC).plusDays(30).toString();
     }
 }

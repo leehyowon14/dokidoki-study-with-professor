@@ -1,7 +1,9 @@
 package com.animalleague.april.auth.application;
 
 import java.time.LocalDate;
+import java.util.Locale;
 
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,11 +46,11 @@ public class AuthService {
         try {
             return userRepository.saveAndFlush(user);
         } catch (DataIntegrityViolationException exception) {
-            if (userRepository.existsByLoginId(loginId)) {
+            if (isDuplicateLoginIdViolation(exception)) {
                 throw duplicateLoginIdException();
             }
 
-            throw exception;
+            throw invalidSignupInputException();
         }
     }
 
@@ -81,6 +83,26 @@ public class AuthService {
             HttpStatus.CONFLICT,
             "DUPLICATE_LOGIN_ID",
             "이미 사용 중인 로그인 ID입니다."
+        );
+    }
+
+    private boolean isDuplicateLoginIdViolation(DataIntegrityViolationException exception) {
+        Throwable mostSpecificCause = NestedExceptionUtils.getMostSpecificCause(exception);
+        String message = mostSpecificCause == null ? exception.getMessage() : mostSpecificCause.getMessage();
+        if (message == null) {
+            return false;
+        }
+
+        String normalizedMessage = message.toLowerCase(Locale.ROOT);
+        return normalizedMessage.contains("uk_users_login_id")
+            || (normalizedMessage.contains("duplicate key") && normalizedMessage.contains("login_id"));
+    }
+
+    private ApiException invalidSignupInputException() {
+        return new ApiException(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_SIGNUP_INPUT",
+            "회원가입 요청 값이 올바르지 않습니다."
         );
     }
 }

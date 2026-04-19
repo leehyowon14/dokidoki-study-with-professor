@@ -22,12 +22,20 @@ public class SignupPolicy {
             throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_NAME", "이름은 비어 있을 수 없습니다.");
         }
 
+        if (name.length() > 100) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_NAME", "이름은 100자 이하여야 합니다.");
+        }
+
         if (loginId == null || !loginId.matches("[A-Za-z0-9]{4,}")) {
             throw new ApiException(
                 HttpStatus.BAD_REQUEST,
                 "INVALID_LOGIN_ID",
                 "로그인 ID는 영문 또는 숫자 4자 이상이어야 합니다."
             );
+        }
+
+        if (loginId.length() > 50) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_LOGIN_ID", "로그인 ID는 50자 이하여야 합니다.");
         }
 
         if (password == null || password.length() < 8) {

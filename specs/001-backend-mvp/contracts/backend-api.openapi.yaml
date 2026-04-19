@@ -263,10 +263,15 @@ components:
       properties:
         name:
           type: string
+          maxLength: 100
         loginId:
           type: string
+          pattern: '^[A-Za-z0-9]+$'
+          minLength: 4
+          maxLength: 50
         password:
           type: string
+          minLength: 8
         examEndDate:
           type: string
           format: date
@@ -276,8 +281,11 @@ components:
       properties:
         loginId:
           type: string
+          pattern: '^[A-Za-z0-9]+$'
+          minLength: 4
         password:
           type: string
+          minLength: 8
       required: [loginId, password]
     UserEnvelope:
       type: object

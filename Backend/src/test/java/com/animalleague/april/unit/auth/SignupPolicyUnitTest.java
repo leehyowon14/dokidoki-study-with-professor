@@ -39,12 +39,30 @@ class SignupPolicyUnitTest {
     }
 
     @Test
+    void longNameIsRejected() {
+        assertThatThrownBy(
+            () -> signupPolicy.validate("가".repeat(101), "hong1234", "password123", LocalDate.parse("2026-06-20"))
+        )
+            .isInstanceOf(ApiException.class)
+            .hasMessage("이름은 100자 이하여야 합니다.");
+    }
+
+    @Test
     void invalidLoginIdIsRejected() {
         assertThatThrownBy(
             () -> signupPolicy.validate("홍길동", "ab!", "password123", LocalDate.parse("2026-06-20"))
         )
             .isInstanceOf(ApiException.class)
             .hasMessage("로그인 ID는 영문 또는 숫자 4자 이상이어야 합니다.");
+    }
+
+    @Test
+    void longLoginIdIsRejected() {
+        assertThatThrownBy(
+            () -> signupPolicy.validate("홍길동", "a".repeat(51), "password123", LocalDate.parse("2026-06-20"))
+        )
+            .isInstanceOf(ApiException.class)
+            .hasMessage("로그인 ID는 50자 이하여야 합니다.");
     }
 
     @Test
