@@ -50,7 +50,14 @@ public class ProfessorService {
         );
 
         Professor savedProfessor = professorRepository.save(professor);
-        affectionRepository.save(Affection.create(currentUserId, savedProfessor.getId(), 0));
+        professorRepository.flush();
+
+        UUID professorId = savedProfessor.getId();
+        if (professorId == null) {
+            throw new IllegalStateException("교수 ID 생성에 실패했습니다.");
+        }
+
+        affectionRepository.save(Affection.create(currentUserId, professorId, 0));
 
         return new ProfessorCreateResponse(ProfessorResponse.from(savedProfessor));
     }
