@@ -3,6 +3,7 @@ package com.animalleague.april.auth.application;
 import java.time.LocalDate;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,15 +37,19 @@ public class AuthService {
         signupPolicy.validate(name, loginId, password, examEndDate);
 
         if (userRepository.existsByLoginId(loginId)) {
-            throw new ApiException(
-                HttpStatus.CONFLICT,
-                "DUPLICATE_LOGIN_ID",
-                "이미 사용 중인 로그인 ID입니다."
-            );
+            throw duplicateLoginIdException();
         }
 
         User user = User.create(loginId, name, passwordEncoder.encode(password), examEndDate);
-        return userRepository.save(user);
+        try {
+            return userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException exception) {
+            if (userRepository.existsByLoginId(loginId)) {
+                throw duplicateLoginIdException();
+            }
+
+            throw exception;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -69,5 +74,13 @@ public class AuthService {
         }
 
         return user;
+    }
+
+    private ApiException duplicateLoginIdException() {
+        return new ApiException(
+            HttpStatus.CONFLICT,
+            "DUPLICATE_LOGIN_ID",
+            "이미 사용 중인 로그인 ID입니다."
+        );
     }
 }

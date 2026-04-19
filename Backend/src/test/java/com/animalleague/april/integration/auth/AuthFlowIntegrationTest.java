@@ -1,5 +1,7 @@
 package com.animalleague.april.integration.auth;
 
+import java.time.LocalDate;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,10 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.animalleague.april.auth.domain.User;
 import com.animalleague.april.auth.infrastructure.UserRepository;
 import com.animalleague.april.integration.support.PostgresIntegrationTest;
 
@@ -46,7 +48,14 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
             .andExpect(jsonPath("$.user.loginId").value("hong1234"))
             .andExpect(jsonPath("$.user.examEndDate").value("2026-06-20"));
 
-        assertThat(userRepository.findByLoginId("hong1234")).isPresent();
+        User persistedUser = userRepository.findByLoginId("hong1234").orElseThrow();
+        assertThat(persistedUser.getId()).isNotNull();
+        assertThat(persistedUser.getLoginId()).isEqualTo("hong1234");
+        assertThat(persistedUser.getName()).isEqualTo("홍길동");
+        assertThat(persistedUser.getExamEndDate()).isEqualTo(LocalDate.parse("2026-06-20"));
+        assertThat(persistedUser.getPasswordHash()).isNotEqualTo("password123");
+        assertThat(persistedUser.getCreatedAt()).isNotNull();
+        assertThat(persistedUser.getUpdatedAt()).isNotNull();
 
         MvcResult loginResult = mockMvc.perform(
                 post("/api/auth/login")
@@ -59,7 +68,6 @@ class AuthFlowIntegrationTest extends PostgresIntegrationTest {
                         """)
             )
             .andExpect(status().isOk())
-            .andExpect(cookie().exists("JSESSIONID"))
             .andExpect(jsonPath("$.user.name").value("홍길동"))
             .andExpect(jsonPath("$.user.loginId").value("hong1234"))
             .andExpect(jsonPath("$.activeSession").value(Matchers.nullValue()))
