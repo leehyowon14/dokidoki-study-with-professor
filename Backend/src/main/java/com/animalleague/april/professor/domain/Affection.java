@@ -6,9 +6,8 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -25,7 +24,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class Affection {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
@@ -68,6 +66,13 @@ public class Affection {
         }
 
         return new Affection(userId, professorId, affectionScore);
+    }
+
+    @PrePersist
+    void assignIdIfAbsent() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
     }
 
     public UUID getId() {

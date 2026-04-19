@@ -8,9 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -27,7 +26,6 @@ import com.animalleague.april.common.domain.PersonalityType;
 public class Professor {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
@@ -116,6 +114,13 @@ public class Professor {
 
         String trimmed = sourcePhotoUrl.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    @PrePersist
+    void assignIdIfAbsent() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
     }
 
     public UUID getId() {
