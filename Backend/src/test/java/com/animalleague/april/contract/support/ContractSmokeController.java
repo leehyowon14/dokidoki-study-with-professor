@@ -1,6 +1,8 @@
 package com.animalleague.april.contract.support;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +25,10 @@ public class ContractSmokeController {
     @PostMapping(path = "/contract-smoke", consumes = MediaType.APPLICATION_JSON_VALUE)
     String smokeWithJson(@RequestBody String payload) {
         return payload;
+    }
+
+    @GetMapping("/contract-smoke/error-response-bad-request")
+    String smokeWithFrameworkBadRequestErrorResponse() {
+        throw new ErrorResponseException(HttpStatus.BAD_REQUEST);
     }
 }
