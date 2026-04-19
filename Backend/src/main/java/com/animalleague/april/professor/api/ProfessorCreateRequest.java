@@ -2,9 +2,11 @@ package com.animalleague.april.professor.api;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record ProfessorCreateRequest(
     @NotBlank(message = "교수명은 비어 있을 수 없습니다.")
+    @Size(max = 100, message = "교수명은 100자 이하여야 합니다.")
     String professorName,
     @NotBlank(message = "성별은 비어 있을 수 없습니다.")
     @Pattern(regexp = "male|female", message = "성별은 male 또는 female 이어야 합니다.")

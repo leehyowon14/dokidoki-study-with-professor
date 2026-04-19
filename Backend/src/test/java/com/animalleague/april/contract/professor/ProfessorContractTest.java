@@ -177,4 +177,23 @@ class ProfessorContractTest extends ApiContractTest {
             .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
             .andExpect(jsonPath("$.violations[0].field").value("gender"));
     }
+
+    @Test
+    void tooLongProfessorNameReturns400() throws Exception {
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "%s",
+                          "gender": "male",
+                          "personalityType": "gentle",
+                          "sourcePhotoUrl": null
+                        }
+                        """.formatted("가".repeat(101)))
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.violations[0].field").value("professorName"));
+    }
 }
