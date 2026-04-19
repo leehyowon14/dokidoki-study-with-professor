@@ -1,15 +1,20 @@
 package com.animalleague.april.integration.professor;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,7 +50,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
 
         mockMvc.perform(
                 post("/api/professors")
-                    .with(SecurityMockMvcRequestPostProcessors.user("alice"))
+                    .with(authenticatedUser("alice"))
                     .contentType("application/json")
                     .content("""
                         {
@@ -77,7 +82,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
 
         mockMvc.perform(
                 post("/api/professors")
-                    .with(SecurityMockMvcRequestPostProcessors.user("alice"))
+                    .with(authenticatedUser("alice"))
                     .contentType("application/json")
                     .content("""
                         {
@@ -101,8 +106,14 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
 
     @Test
     void professorListAndDetailAreScopedToAuthenticatedUser() throws Exception {
-        Professor aliceProfessor = seedProfessor("alice", "알리스교수", Gender.MALE, PersonalityType.GENTLE, null);
-        Professor bobProfessor = seedProfessor(
+        UUID aliceProfessorId = createProfessor(
+            "alice",
+            "알리스교수",
+            Gender.MALE,
+            PersonalityType.GENTLE,
+            null
+        );
+        UUID bobProfessorId = createProfessor(
             "bob",
             "밥교수",
             Gender.FEMALE,
@@ -112,25 +123,25 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
 
         mockMvc.perform(
                 get("/api/professors")
-                    .with(SecurityMockMvcRequestPostProcessors.user("alice"))
+                    .with(authenticatedUser("alice"))
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.professors", Matchers.hasSize(1)))
             .andExpect(jsonPath("$.professors[0].professorName").value("알리스교수"));
 
         mockMvc.perform(
-                get("/api/professors/{professorId}", aliceProfessor.getId())
-                    .with(SecurityMockMvcRequestPostProcessors.user("alice"))
+                get("/api/professors/{professorId}", aliceProfessorId)
+                    .with(authenticatedUser("alice"))
             )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.professor.id").value(aliceProfessor.getId().toString()))
-            .andExpect(jsonPath("$.affection.professorId").value(aliceProfessor.getId().toString()))
+            .andExpect(jsonPath("$.professor.id").value(aliceProfessorId.toString()))
+            .andExpect(jsonPath("$.affection.professorId").value(aliceProfessorId.toString()))
             .andExpect(jsonPath("$.affection.affectionScore").value(0))
             .andExpect(jsonPath("$.characterAssets", Matchers.hasSize(0)));
 
         mockMvc.perform(
-                get("/api/professors/{professorId}", bobProfessor.getId())
-                    .with(SecurityMockMvcRequestPostProcessors.user("alice"))
+                get("/api/professors/{professorId}", bobProfessorId)
+                    .with(authenticatedUser("alice"))
             )
             .andExpect(status().isNotFound());
     }
@@ -142,22 +153,45 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
     }
 
-    private Professor seedProfessor(
+    private UUID createProfessor(
         String username,
         String professorName,
         Gender gender,
         PersonalityType personalityType,
         String sourcePhotoUrl
-    ) {
-        UUID userId = userIdFor(username);
-        Professor savedProfessor = professorRepository.save(
-            Professor.create(userId, professorName, gender, personalityType, sourcePhotoUrl)
-        );
-        affectionRepository.save(Affection.create(userId, savedProfessor.getId(), 0));
-        return savedProfessor;
+    ) throws Exception {
+        MvcResult result = mockMvc.perform(
+                post("/api/professors")
+                    .with(authenticatedUser(username))
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "%s",
+                          "gender": "%s",
+                          "personalityType": "%s",
+                          "sourcePhotoUrl": %s
+                        }
+                        """.formatted(
+                        professorName,
+                        gender.value(),
+                        personalityType.value(),
+                        sourcePhotoUrl == null ? "null" : "\"%s\"".formatted(sourcePhotoUrl)
+                    ))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+        return UUID.fromString(body.path("professor").path("id").asText());
     }
 
     private UUID userIdFor(String username) {
         return UUID.nameUUIDFromBytes(username.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private RequestPostProcessor authenticatedUser(String username) {
+        return SecurityMockMvcRequestPostProcessors.authentication(
+            UsernamePasswordAuthenticationToken.authenticated(username, null, List.of())
+        );
     }
 }
