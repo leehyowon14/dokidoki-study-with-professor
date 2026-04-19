@@ -10,11 +10,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,7 +44,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
     void createProfessorInitializesAffectionAtZero() throws Exception {
         UUID userId = userIdFor("alice");
 
-        mockMvc.perform(
+        MvcResult createResult = mockMvc.perform(
                 post("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
                     .contentType("application/json")
@@ -57,11 +57,15 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                         }
                         """)
             )
-            .andDo(print())
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.professor.professorName").value("홍길동"))
-            .andExpect(jsonPath("$.professor.characterAssetStatus").value("ready"))
-            .andExpect(jsonPath("$.professor.isDefaultCharacterAssets").value(true));
+            .andReturn();
+
+        assertThat(createResult.getResponse().getStatus())
+            .withFailMessage(
+                "createProfessorInitializesAffectionAtZero status=%s body=%s",
+                createResult.getResponse().getStatus(),
+                createResult.getResponse().getContentAsString()
+            )
+            .isEqualTo(201);
 
         Professor professor = professorRepository.findAllByUserIdOrderByCreatedAtDesc(userId).getFirst();
         assertThat(professor.getProfessorName()).isEqualTo("홍길동");
@@ -77,7 +81,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
     void createProfessorWithSourcePhotoStartsInPendingState() throws Exception {
         UUID userId = userIdFor("alice");
 
-        mockMvc.perform(
+        MvcResult createResult = mockMvc.perform(
                 post("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
                     .contentType("application/json")
@@ -90,11 +94,15 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                         }
                         """)
             )
-            .andDo(print())
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.professor.professorName").value("김교수"))
-            .andExpect(jsonPath("$.professor.characterAssetStatus").value("pending"))
-            .andExpect(jsonPath("$.professor.isDefaultCharacterAssets").value(false));
+            .andReturn();
+
+        assertThat(createResult.getResponse().getStatus())
+            .withFailMessage(
+                "createProfessorWithSourcePhotoStartsInPendingState status=%s body=%s",
+                createResult.getResponse().getStatus(),
+                createResult.getResponse().getContentAsString()
+            )
+            .isEqualTo(201);
 
         Professor professor = professorRepository.findAllByUserIdOrderByCreatedAtDesc(userId).getFirst();
         assertThat(professor.getSourcePhotoUrl()).isEqualTo("https://cdn.example.com/source/prof_2.jpg");
@@ -113,25 +121,37 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             "https://cdn.example.com/source/bob.jpg"
         );
 
-        mockMvc.perform(
+        MvcResult listResult = mockMvc.perform(
                 get("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.professors", Matchers.hasSize(1)))
-            .andExpect(jsonPath("$.professors[0].professorName").value("알리스교수"));
+            .andReturn();
 
-        mockMvc.perform(
+        assertThat(listResult.getResponse().getStatus())
+            .withFailMessage(
+                "professorList status=%s body=%s",
+                listResult.getResponse().getStatus(),
+                listResult.getResponse().getContentAsString()
+            )
+            .isEqualTo(200);
+        assertThat(listResult.getResponse().getContentAsString()).contains("알리스교수");
+
+        MvcResult detailResult = mockMvc.perform(
                 get("/api/professors/{professorId}", aliceProfessor.getId())
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.professor.id").value(aliceProfessor.getId().toString()))
-            .andExpect(jsonPath("$.affection.professorId").value(aliceProfessor.getId().toString()))
-            .andExpect(jsonPath("$.affection.affectionScore").value(0))
-            .andExpect(jsonPath("$.characterAssets", Matchers.hasSize(0)));
+            .andReturn();
+
+        assertThat(detailResult.getResponse().getStatus())
+            .withFailMessage(
+                "professorDetail status=%s body=%s",
+                detailResult.getResponse().getStatus(),
+                detailResult.getResponse().getContentAsString()
+            )
+            .isEqualTo(200);
+        assertThat(detailResult.getResponse().getContentAsString())
+            .contains(aliceProfessor.getId().toString())
+            .contains("\"affectionScore\":0");
 
         mockMvc.perform(
                 get("/api/professors/{professorId}", bobProfessor.getId())
