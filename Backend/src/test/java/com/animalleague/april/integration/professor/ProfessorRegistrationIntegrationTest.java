@@ -165,6 +165,24 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
     }
 
+    @Test
+    void unauthenticatedProfessorCreationRequestReturns401() throws Exception {
+        mockMvc.perform(
+                post("/api/professors")
+                    .contentType("application/json")
+                    .content("""
+                        {
+                          "professorName": "홍길동",
+                          "gender": "male",
+                          "personalityType": "gentle",
+                          "sourcePhotoUrl": null
+                        }
+                        """)
+            )
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+    }
+
     private Professor seedProfessor(
         String username,
         String professorName,
