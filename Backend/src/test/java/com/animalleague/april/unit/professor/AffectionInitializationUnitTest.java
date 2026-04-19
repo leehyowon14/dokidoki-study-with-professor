@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -87,5 +89,26 @@ class AffectionInitializationUnitTest {
         assertThatThrownBy(() -> Affection.create(UUID.randomUUID(), UUID.randomUUID(), -1))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("affectionScore는 0 이상 100 이하여야 합니다.");
+    }
+
+    @Test
+    void listProfessorsThrowsUnauthorizedForUnauthenticatedUser() {
+        ProfessorRepository professorRepository = mock(ProfessorRepository.class);
+        AffectionRepository affectionRepository = mock(AffectionRepository.class);
+        CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
+        ProfessorService professorService = new ProfessorService(
+            professorRepository,
+            affectionRepository,
+            currentUserProvider
+        );
+        given(currentUserProvider.currentUserId()).willReturn(null);
+
+        assertThatThrownBy(professorService::listProfessors)
+            .isInstanceOf(ResponseStatusException.class)
+            .satisfies(exception -> {
+                ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+                assertThat(responseStatusException.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+                assertThat(responseStatusException.getReason()).isEqualTo("인증이 필요합니다.");
+            });
     }
 }
