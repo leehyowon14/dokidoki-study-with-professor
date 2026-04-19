@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,6 +57,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                         }
                         """)
             )
+            .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.professor.professorName").value("홍길동"))
             .andExpect(jsonPath("$.professor.characterAssetStatus").value("ready"))
@@ -88,6 +90,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                         }
                         """)
             )
+            .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.professor.professorName").value("김교수"))
             .andExpect(jsonPath("$.professor.characterAssetStatus").value("pending"))
@@ -114,6 +117,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                 get("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
+            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.professors", Matchers.hasSize(1)))
             .andExpect(jsonPath("$.professors[0].professorName").value("알리스교수"));
@@ -122,6 +126,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                 get("/api/professors/{professorId}", aliceProfessor.getId())
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
+            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.professor.id").value(aliceProfessor.getId().toString()))
             .andExpect(jsonPath("$.affection.professorId").value(aliceProfessor.getId().toString()))
@@ -150,12 +155,19 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
         String sourcePhotoUrl
     ) {
         UUID userId = userIdFor(username);
-        Professor savedProfessor = professorRepository.save(
-            Professor.create(userId, professorName, gender, personalityType, sourcePhotoUrl)
-        );
-        professorRepository.flush();
-        affectionRepository.save(Affection.create(userId, savedProfessor.getId(), 0));
-        return savedProfessor;
+        Professor professor = Professor.create(userId, professorName, gender, personalityType, sourcePhotoUrl);
+        try {
+            Professor savedProfessor = professorRepository.save(professor);
+            professorRepository.flush();
+            affectionRepository.save(Affection.create(userId, savedProfessor.getId(), 0));
+            return savedProfessor;
+        } catch (RuntimeException exception) {
+            throw new AssertionError(
+                "seedProfessor failed userId=%s, professorName=%s, gender=%s, personalityType=%s, sourcePhotoUrl=%s"
+                    .formatted(userId, professorName, gender, personalityType, sourcePhotoUrl),
+                exception
+            );
+        }
     }
 
     private UUID userIdFor(String username) {
