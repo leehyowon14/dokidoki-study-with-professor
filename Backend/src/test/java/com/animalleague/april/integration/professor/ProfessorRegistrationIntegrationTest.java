@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -44,7 +43,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
     void createProfessorInitializesAffectionAtZero() throws Exception {
         UUID userId = userIdFor("alice");
 
-        MvcResult createResult = mockMvc.perform(
+        mockMvc.perform(
                 post("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
                     .contentType("application/json")
@@ -57,21 +56,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                         }
                         """)
             )
-            .andReturn();
-
-        System.err.printf(
-            "DIAG createProfessorInitializesAffectionAtZero status=%s body=%s%n",
-            createResult.getResponse().getStatus(),
-            createResult.getResponse().getContentAsString()
-        );
-
-        assertThat(createResult.getResponse().getStatus())
-            .withFailMessage(
-                "createProfessorInitializesAffectionAtZero status=%s body=%s",
-                createResult.getResponse().getStatus(),
-                createResult.getResponse().getContentAsString()
-            )
-            .isEqualTo(201);
+            .andExpect(status().isCreated());
 
         Professor professor = professorRepository.findAllByUserIdOrderByCreatedAtDesc(userId).getFirst();
         assertThat(professor.getProfessorName()).isEqualTo("홍길동");
@@ -87,7 +72,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
     void createProfessorWithSourcePhotoStartsInPendingState() throws Exception {
         UUID userId = userIdFor("alice");
 
-        MvcResult createResult = mockMvc.perform(
+        mockMvc.perform(
                 post("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
                     .contentType("application/json")
@@ -100,21 +85,7 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                         }
                         """)
             )
-            .andReturn();
-
-        System.err.printf(
-            "DIAG createProfessorWithSourcePhotoStartsInPendingState status=%s body=%s%n",
-            createResult.getResponse().getStatus(),
-            createResult.getResponse().getContentAsString()
-        );
-
-        assertThat(createResult.getResponse().getStatus())
-            .withFailMessage(
-                "createProfessorWithSourcePhotoStartsInPendingState status=%s body=%s",
-                createResult.getResponse().getStatus(),
-                createResult.getResponse().getContentAsString()
-            )
-            .isEqualTo(201);
+            .andExpect(status().isCreated());
 
         Professor professor = professorRepository.findAllByUserIdOrderByCreatedAtDesc(userId).getFirst();
         assertThat(professor.getSourcePhotoUrl()).isEqualTo("https://cdn.example.com/source/prof_2.jpg");
@@ -133,49 +104,20 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             "https://cdn.example.com/source/bob.jpg"
         );
 
-        MvcResult listResult = mockMvc.perform(
+        mockMvc.perform(
                 get("/api/professors")
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
-            .andReturn();
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.professors[0].professorName").value("알리스교수"));
 
-        System.err.printf(
-            "DIAG professorList status=%s body=%s%n",
-            listResult.getResponse().getStatus(),
-            listResult.getResponse().getContentAsString()
-        );
-
-        assertThat(listResult.getResponse().getStatus())
-            .withFailMessage(
-                "professorList status=%s body=%s",
-                listResult.getResponse().getStatus(),
-                listResult.getResponse().getContentAsString()
-            )
-            .isEqualTo(200);
-        assertThat(listResult.getResponse().getContentAsString()).contains("알리스교수");
-
-        MvcResult detailResult = mockMvc.perform(
+        mockMvc.perform(
                 get("/api/professors/{professorId}", aliceProfessor.getId())
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
-            .andReturn();
-
-        System.err.printf(
-            "DIAG professorDetail status=%s body=%s%n",
-            detailResult.getResponse().getStatus(),
-            detailResult.getResponse().getContentAsString()
-        );
-
-        assertThat(detailResult.getResponse().getStatus())
-            .withFailMessage(
-                "professorDetail status=%s body=%s",
-                detailResult.getResponse().getStatus(),
-                detailResult.getResponse().getContentAsString()
-            )
-            .isEqualTo(200);
-        assertThat(detailResult.getResponse().getContentAsString())
-            .contains(aliceProfessor.getId().toString())
-            .contains("\"affectionScore\":0");
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.professor.id").value(aliceProfessor.getId().toString()))
+            .andExpect(jsonPath("$.affection.affectionScore").value(0));
 
         mockMvc.perform(
                 get("/api/professors/{professorId}", bobProfessor.getId())
@@ -200,27 +142,10 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
     ) {
         UUID userId = userIdFor(username);
         Professor professor = Professor.create(userId, professorName, gender, personalityType, sourcePhotoUrl);
-        try {
-            Professor savedProfessor = professorRepository.save(professor);
-            professorRepository.flush();
-            affectionRepository.save(Affection.create(userId, savedProfessor.getId(), 0));
-            return savedProfessor;
-        } catch (RuntimeException exception) {
-            System.err.printf(
-                "DIAG seedProfessor failed userId=%s professorName=%s gender=%s personalityType=%s sourcePhotoUrl=%s%n",
-                userId,
-                professorName,
-                gender,
-                personalityType,
-                sourcePhotoUrl
-            );
-            exception.printStackTrace(System.err);
-            throw new AssertionError(
-                "seedProfessor failed userId=%s, professorName=%s, gender=%s, personalityType=%s, sourcePhotoUrl=%s"
-                    .formatted(userId, professorName, gender, personalityType, sourcePhotoUrl),
-                exception
-            );
-        }
+        Professor savedProfessor = professorRepository.save(professor);
+        professorRepository.flush();
+        affectionRepository.save(Affection.create(userId, savedProfessor.getId(), 0));
+        return savedProfessor;
     }
 
     private UUID userIdFor(String username) {
