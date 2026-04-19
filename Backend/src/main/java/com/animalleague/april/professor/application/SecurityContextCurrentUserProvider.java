@@ -6,13 +6,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Supports UUID principal, UUID string principal, and public {@code id}/{@code getId()} accessors.
+ * When none are available, falls back to a deterministic UUID derived from {@link Authentication#getName()}.
+ */
 @Component
 public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityContextCurrentUserProvider.class);
 
     @Override
     public UUID currentUserId() {
@@ -28,6 +36,10 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
             return principalId;
         }
 
+        log.debug(
+            "principal에서 사용자 ID를 해석하지 못해 authentication.name 기반 UUID fallback을 사용합니다. principalType={}",
+            authentication.getPrincipal() == null ? "null" : authentication.getPrincipal().getClass().getName()
+        );
         return UUID.nameUUIDFromBytes(authentication.getName().getBytes(StandardCharsets.UTF_8));
     }
 
@@ -72,6 +84,12 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
         } catch (NoSuchMethodException ignored) {
             return null;
         } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException exception) {
+            log.debug(
+                "principal accessor 호출에 실패했습니다. principalType={}, methodName={}",
+                principal.getClass().getName(),
+                methodName,
+                exception
+            );
             return null;
         }
     }
