@@ -59,6 +59,12 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             )
             .andReturn();
 
+        System.err.printf(
+            "DIAG createProfessorInitializesAffectionAtZero status=%s body=%s%n",
+            createResult.getResponse().getStatus(),
+            createResult.getResponse().getContentAsString()
+        );
+
         assertThat(createResult.getResponse().getStatus())
             .withFailMessage(
                 "createProfessorInitializesAffectionAtZero status=%s body=%s",
@@ -96,6 +102,12 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             )
             .andReturn();
 
+        System.err.printf(
+            "DIAG createProfessorWithSourcePhotoStartsInPendingState status=%s body=%s%n",
+            createResult.getResponse().getStatus(),
+            createResult.getResponse().getContentAsString()
+        );
+
         assertThat(createResult.getResponse().getStatus())
             .withFailMessage(
                 "createProfessorWithSourcePhotoStartsInPendingState status=%s body=%s",
@@ -127,6 +139,12 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             )
             .andReturn();
 
+        System.err.printf(
+            "DIAG professorList status=%s body=%s%n",
+            listResult.getResponse().getStatus(),
+            listResult.getResponse().getContentAsString()
+        );
+
         assertThat(listResult.getResponse().getStatus())
             .withFailMessage(
                 "professorList status=%s body=%s",
@@ -141,6 +159,12 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
                     .with(SecurityMockMvcRequestPostProcessors.user("alice"))
             )
             .andReturn();
+
+        System.err.printf(
+            "DIAG professorDetail status=%s body=%s%n",
+            detailResult.getResponse().getStatus(),
+            detailResult.getResponse().getContentAsString()
+        );
 
         assertThat(detailResult.getResponse().getStatus())
             .withFailMessage(
@@ -182,6 +206,15 @@ class ProfessorRegistrationIntegrationTest extends PostgresIntegrationTest {
             affectionRepository.save(Affection.create(userId, savedProfessor.getId(), 0));
             return savedProfessor;
         } catch (RuntimeException exception) {
+            System.err.printf(
+                "DIAG seedProfessor failed userId=%s professorName=%s gender=%s personalityType=%s sourcePhotoUrl=%s%n",
+                userId,
+                professorName,
+                gender,
+                personalityType,
+                sourcePhotoUrl
+            );
+            exception.printStackTrace(System.err);
             throw new AssertionError(
                 "seedProfessor failed userId=%s, professorName=%s, gender=%s, personalityType=%s, sourcePhotoUrl=%s"
                     .formatted(userId, professorName, gender, personalityType, sourcePhotoUrl),

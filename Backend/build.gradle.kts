@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
@@ -85,6 +86,14 @@ integrationTest.configure {
                 commandLine("docker", "info")
             }.result.get()
         }
+    }
+    testLogging {
+        events("failed")
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        exceptionFormat = TestExceptionFormat.FULL
+        showStandardStreams = true
     }
 }
 
