@@ -20,6 +20,21 @@ API 명세 v0.1
 - 계약 불일치 또는 미해결 질문은 `Docs/FE-comment-v1.0.md` 또는
   `Docs/BE-comment-v1.0.md`에 기록한다.
 
+### 2.1 구현 기준 freeze 현황
+
+- 이 문서는 이슈 `#2` 기준으로 공통 enum 값과 인증/오류 응답 기본 정책을 구현 기준으로 고정한다.
+- freeze 대상:
+  - `gender`
+  - `personalityType`
+  - `characterAssetStatus`
+  - `triggerType`
+  - `kind`
+  - `speakerRole`
+- 공통 오류 응답 기본 필드는 `timestamp`, `status`, `error`, `code`, `message`, `path`, `violations[]`를 사용한다.
+- 현재 범위의 미해결 항목:
+  - 엔드포인트별 세부 오류 코드 목록은 후속 이슈에서 확장한다.
+  - 서블릿 세션을 기준으로 인증을 유지하며 Spring Session 도입 여부는 현재 범위 밖이다.
+
 ## 3. 인증
 
 | 메서드 | 경로 | 설명 |

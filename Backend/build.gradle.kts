@@ -28,6 +28,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
 
     runtimeOnly("org.postgresql:postgresql")
 
@@ -76,6 +77,16 @@ val integrationTest = registerSuiteTask(
     includePattern = "*Integration*",
     descriptionText = "통합 테스트만 실행한다."
 )
+
+integrationTest.configure {
+    doFirst {
+        if (providers.environmentVariable("CI").orNull == "true") {
+            providers.exec {
+                commandLine("docker", "info")
+            }.result.get()
+        }
+    }
+}
 
 val unitTest = registerSuiteTask(
     taskName = "unitTest",

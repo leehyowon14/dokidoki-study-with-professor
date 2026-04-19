@@ -2,7 +2,23 @@ openapi: 3.1.0
 info:
   title: 딸깍 콘테스트 백엔드 MVP API
   version: 0.1.0
-  description: 4월 MVP 기능 범위를 위한 백엔드 우선 계약 문서.
+  description: |
+    4월 MVP 기능 범위를 위한 백엔드 우선 계약 문서.
+    이 문서는 이슈 #2 기준으로 공통 enum 값과 인증/오류 응답 기본 정책을 구현 기준으로 freeze한다.
+  x-contract-freeze:
+    issue: 2
+    status: frozen
+    scope:
+      - gender
+      - personalityType
+      - characterAssetStatus
+      - triggerType
+      - kind
+      - speakerRole
+      - errorResponse
+    unresolved:
+      - 엔드포인트별 세부 오류 코드 목록은 후속 이슈에서 확장한다.
+      - 인증 세션 저장소는 현재 서블릿 세션을 기준으로 하며 Spring Session 도입 여부는 범위 밖이다.
 servers:
   - url: https://api.example.com
     description: 운영 환경 예시
