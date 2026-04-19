@@ -9,10 +9,13 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -23,10 +26,13 @@ import com.animalleague.april.common.domain.PersonalityType;
 @Entity
 @Table(name = "professors")
 @EntityListeners(AuditingEntityListener.class)
-public class Professor {
+public class Professor implements Persistable<UUID> {
 
     @Id
     private UUID id;
+
+    @Transient
+    private boolean isNew = true;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
@@ -67,6 +73,7 @@ public class Professor {
     }
 
     private Professor(
+        UUID id,
         UUID userId,
         String professorName,
         Gender gender,
@@ -76,6 +83,7 @@ public class Professor {
         String representativeAssetUrl,
         boolean isDefaultCharacterAssets
     ) {
+        this.id = id;
         this.userId = userId;
         this.professorName = professorName;
         this.gender = gender;
@@ -96,6 +104,7 @@ public class Professor {
         String normalizedSourcePhotoUrl = normalizeSourcePhotoUrl(sourcePhotoUrl);
         boolean hasSourcePhoto = normalizedSourcePhotoUrl != null;
         return new Professor(
+            UUID.randomUUID(),
             userId,
             professorName,
             gender,
@@ -116,15 +125,20 @@ public class Professor {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
-    @PrePersist
-    void assignIdIfAbsent() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
-    }
-
+    @Override
     public UUID getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostPersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 
     public UUID getUserId() {

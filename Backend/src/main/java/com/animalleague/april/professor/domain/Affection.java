@@ -7,11 +7,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,10 +24,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
     uniqueConstraints = @UniqueConstraint(name = "uk_affections_user_professor", columnNames = {"user_id", "professor_id"})
 )
 @EntityListeners(AuditingEntityListener.class)
-public class Affection {
+public class Affection implements Persistable<UUID> {
 
     @Id
     private UUID id;
+
+    @Transient
+    private boolean isNew = true;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
@@ -46,7 +52,8 @@ public class Affection {
     protected Affection() {
     }
 
-    private Affection(UUID userId, UUID professorId, int affectionScore) {
+    private Affection(UUID id, UUID userId, UUID professorId, int affectionScore) {
+        this.id = id;
         this.userId = userId;
         this.professorId = professorId;
         this.affectionScore = affectionScore;
@@ -65,18 +72,23 @@ public class Affection {
             throw new IllegalArgumentException("affectionScore는 0 이상 100 이하여야 합니다.");
         }
 
-        return new Affection(userId, professorId, affectionScore);
+        return new Affection(UUID.randomUUID(), userId, professorId, affectionScore);
     }
 
-    @PrePersist
-    void assignIdIfAbsent() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
-    }
-
+    @Override
     public UUID getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostPersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 
     public UUID getUserId() {
